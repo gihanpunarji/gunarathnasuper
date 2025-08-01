@@ -92,7 +92,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Iskoola Pota" size="18" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="&#xdb1;&#xdc0; &#xd9c;&#xdab;&#xdd4;&#xdaf;&#xdd9;&#xdb1;&#xdd4;&#xd9a;&#xdbb;&#xdd4;&#xdc0;&#xd9a;&#xdd4; &#xd91;&#xd9a;&#xdad;&#xdd4; &#xd9a;&#xdbb;&#xdb1;&#xdca;&#xdb1;"/>
+            <Property name="text" type="java.lang.String" value="&#xdb1;&#xdc0; &#xdab;&#xdba; &#xd9c;&#xdab;&#xdd4;&#xdaf;&#xdd9;&#xdb1;&#xdd4;&#xd9a;&#xdbb;&#xdd4;&#xdc0;&#xd9a;&#xdd4; &#xd91;&#xd9a;&#xdad;&#xdd4; &#xd9a;&#xdbb;&#xdb1;&#xdca;&#xdb1;"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel6">

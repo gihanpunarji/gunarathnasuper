@@ -1,15 +1,117 @@
 package GUI;
 
-
-
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 public class ReportPage extends javax.swing.JPanel {
 
     public ReportPage() {
         initComponents();
-      
-       
+        showBarChartSinhala();
+        showPieChartSinhala();
 
+    }
+
+    private void showBarChartSinhala() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        dataset.addValue(30000, "වෙත", "ජනවාරි");
+        dataset.addValue(32000, "වෙත", "පෙබරවාරි");
+        dataset.addValue(28000, "වෙත", "මාර්තු");
+        dataset.addValue(35000, "වෙත", "අප්‍රේල්");
+        dataset.addValue(40000, "වෙත", "මැයි");
+        dataset.addValue(45000, "වෙත", "ජූනි");
+        dataset.addValue(48000, "වෙත", "ජූලි");
+        dataset.addValue(42000, "වෙත", "අගෝස්තු");
+        dataset.addValue(41000, "වෙත", "සැප්තැම්බර්");
+        dataset.addValue(43000, "වෙත", "ඔක්තෝබර්");
+        dataset.addValue(39000, "වෙත", "නොවැම්බර්");
+        dataset.addValue(37000, "වෙත", "දෙසැම්බර්");
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                "මාසික විකුණුම් වාර්තාව",
+                "මාසය",
+                "රුපියල්",
+                dataset
+        );
+
+        Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14); // or use Nirmala UI if needed
+        chart.getTitle().setFont(sinhalaFont);
+        chart.getCategoryPlot().getDomainAxis().setLabelFont(sinhalaFont);
+        chart.getCategoryPlot().getRangeAxis().setLabelFont(sinhalaFont);
+        chart.getCategoryPlot().getDomainAxis().setTickLabelFont(sinhalaFont);
+        chart.getCategoryPlot().getRangeAxis().setTickLabelFont(sinhalaFont);
+        chart.getLegend().setItemFont(sinhalaFont);
+
+        // Chart UI settings
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.getPlot().setBackgroundPaint(Color.WHITE);
+
+        // Create chart panel
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(500, 300));
+
+        // Add chart panel to 'barChart' JPanel
+        barChart.setLayout(new BorderLayout());
+        barChart.removeAll();
+        barChart.add(chartPanel, BorderLayout.CENTER);
+        barChart.revalidate();
+        barChart.repaint();
+    }
+
+    private void showPieChartSinhala() {
+        // Sample dataset
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("ආදායම", 40);     // Income
+        dataset.setValue("වැය", 25);       // Expenses
+        dataset.setValue("ඉතිරිකිරීම්", 20); // Savings
+        dataset.setValue("වෙනත්", 15);     // Others
+
+        // Create Pie Chart
+        JFreeChart chart = ChartFactory.createPieChart(
+                "මූල්‍ය බෙදාහැරීම", // Chart Title in Sinhala
+                dataset,
+                true, true, false
+        );
+
+        // Set Sinhala font
+        Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14);
+        chart.getTitle().setFont(sinhalaFont);
+        chart.getLegend().setItemFont(sinhalaFont);
+
+        // Background color
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.getPlot().setBackgroundPaint(Color.WHITE);
+
+        // Set custom colors
+        PiePlot plot = (PiePlot) chart.getPlot();
+        plot.setLabelFont(sinhalaFont);
+
+        plot.setSectionPaint("ආදායම", new Color(247, 207, 216));     // #F7CFD8
+        plot.setSectionPaint("වැය", new Color(244, 248, 211));       // #F4F8D3
+        plot.setSectionPaint("ඉතිරිකිරීම්", new Color(166, 214, 214)); // #A6D6D6
+        plot.setSectionPaint("වෙනත්", new Color(142, 125, 190));     // #8E7DBE
+
+        // Create Chart Panel
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(500, 300));
+
+        // Add to JPanel (make sure pieChartPanel exists)
+        piechart.setLayout(new BorderLayout());
+        piechart.removeAll();
+        piechart.add(chartPanel, BorderLayout.CENTER);
+        piechart.revalidate();
+        piechart.repaint();
     }
 
     @SuppressWarnings("unchecked")
@@ -59,6 +161,7 @@ public class ReportPage extends javax.swing.JPanel {
         jLabel12 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        piechart = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -321,15 +424,17 @@ public class ReportPage extends javax.swing.JPanel {
 
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
 
+        barChart.setPreferredSize(new java.awt.Dimension(1211, 350));
+
         javax.swing.GroupLayout barChartLayout = new javax.swing.GroupLayout(barChart);
         barChart.setLayout(barChartLayout);
         barChartLayout.setHorizontalGroup(
             barChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1211, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         barChartLayout.setVerticalGroup(
             barChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 350, Short.MAX_VALUE)
         );
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
@@ -474,8 +579,6 @@ public class ReportPage extends javax.swing.JPanel {
             }
         ));
         jTable1.setShowGrid(true);
-        jTable1.setShowHorizontalLines(true);
-        jTable1.setShowVerticalLines(true);
         jScrollPane1.setViewportView(jTable1);
         if (jTable1.getColumnModel().getColumnCount() > 0) {
             jTable1.getColumnModel().getColumn(0).setResizable(false);
@@ -492,7 +595,7 @@ public class ReportPage extends javax.swing.JPanel {
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addComponent(jScrollPane1))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -508,28 +611,44 @@ public class ReportPage extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
+        javax.swing.GroupLayout piechartLayout = new javax.swing.GroupLayout(piechart);
+        piechart.setLayout(piechartLayout);
+        piechartLayout.setHorizontalGroup(
+            piechartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 519, Short.MAX_VALUE)
+        );
+        piechartLayout.setVerticalGroup(
+            piechartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(barChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 627, Short.MAX_VALUE)))
+                        .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 627, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(barChart, javax.swing.GroupLayout.DEFAULT_SIZE, 680, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(piechart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(barChart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(barChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(piechart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE))
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -581,6 +700,7 @@ public class ReportPage extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JPanel piechart;
     // End of variables declaration//GEN-END:variables
 
 }

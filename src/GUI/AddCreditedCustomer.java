@@ -32,7 +32,7 @@ public class AddCreditedCustomer extends javax.swing.JFrame {
         setResizable(false);
 
         jLabel4.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
-        jLabel4.setText("නව ගණුදෙනුකරුවකු එකතු කරන්න");
+        jLabel4.setText("නව ණය ගණුදෙනුකරුවකු එකතු කරන්න");
 
         jLabel6.setFont(new java.awt.Font("Iskoola Pota", 0, 14)); // NOI18N
         jLabel6.setText("නම");
