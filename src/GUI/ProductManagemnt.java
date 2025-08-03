@@ -4,17 +4,11 @@
  */
 package GUI;
 
-import java.sql.ResultSet;
 import dao.ProductDAO;
-import database.Database;
 import dto.Product;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 /**
  *
@@ -264,11 +258,10 @@ public class ProductManagemnt extends javax.swing.JPanel {
         
         ProductDAO dao = new ProductDAO();
         List<Product> products = dao.getAllProducts();
-
         for (Product p : products) {
             Object[] row = {
                 p.getBarcode(),
-                p.getEnName(),
+                p.getSiName(),
                 p.getWeladapalaMila(),
                 p.getApeMila(),
                 "🗑 Delete" 
@@ -294,7 +287,6 @@ public class ProductManagemnt extends javax.swing.JPanel {
         Object[] row = {
             p.getBarcode(),
             p.getSiName(),
-            p.getEnName(),
             p.getWeladapalaMila(),
             p.getApeMila(),
              "🗑 Delete"
