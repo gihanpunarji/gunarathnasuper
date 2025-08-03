@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -33,7 +35,7 @@ public class ProductDAO {
             return true;
             
         } catch(SQLException e) {
-           e.printStackTrace();
+            System.out.println("Barcode exists");
            return false;
         }
     }
@@ -98,4 +100,31 @@ public class ProductDAO {
         
         return products;
     } 
+
+    public boolean deleteProduct(String barcode) {
+        Connection connection = Database.getInstace().getConnection();
+        try(PreparedStatement pstmt = connection.prepareStatement("DELETE FROM products WHERE barcode = ?")) {
+            pstmt.setString(1, barcode);
+            int affectedRows = pstmt.executeUpdate();
+
+            return affectedRows > 0;
+        
+        } catch (SQLException ex) {
+            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
+    public boolean updateApeMila(String barcode, double newPrice) {
+    String sql = "UPDATE products SET ape_mila = ? WHERE barcode = ?";
+    try (Connection conn = Database.getInstace().getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setDouble(1, newPrice);
+        pstmt.setString(2, barcode);
+        return pstmt.executeUpdate() > 0;
+    } catch (SQLException e) {
+        System.err.println("❌ Update Product Error: " + e.getMessage());
+        return false;
+    }
+}
 }

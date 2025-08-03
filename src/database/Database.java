@@ -32,11 +32,12 @@ public class Database {
         }
         return instance;
     }
-
-    public Connection getConnection() {
-        return conn;
+    
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL);
     }
 
+ 
     private void addTables() {
         try (Statement stmt = conn.createStatement()) {
 

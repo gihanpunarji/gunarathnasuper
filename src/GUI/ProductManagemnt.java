@@ -6,9 +6,18 @@ package GUI;
 
 import dao.ProductDAO;
 import dto.Product;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -21,7 +30,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
      */
     public ProductManagemnt() {
         initComponents();
-        loadProductsTable(jTable1);
+        loadProductsTable(jTable1, null);
         jLabel2.setText(String.valueOf(jTable1.getRowCount()));
     }
 
@@ -249,53 +258,113 @@ public class ProductManagemnt extends javax.swing.JPanel {
         String keyword = jTextField2.getText().trim();
         ProductDAO dao = new ProductDAO();
         List<Product> result = dao.searchProducts(keyword);
-        loadProductsToTable(jTable1, result);
+        loadProductsTable(jTable1, result);
     }//GEN-LAST:event_jTextField2KeyReleased
 
-    public void loadProductsTable(JTable table) {
-        String columns[] = {"Bar Code", "Product Name (SI)", "වෙළඳපල මිල", "අපේ මිල", "Remove"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+    public void loadProductsTable(JTable table, List<Product> products) {
+        String columns[] = {"Bar Code", "Product Name (SI)","Product Name (EN)", "වෙළඳපල මිල", "අපේ මිල"};
+        
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                if(column == 0 || column == 1 ||  column == 2 || column == 3) {
+                    return false;
+                }
+                return true;
+            }
+        };
+        
+        
+        JTableHeader header = jTable1.getTableHeader();
+        header.setBackground(new Color(204, 127, 84));
+        header.setForeground(new Color(255, 255, 255));
         
         ProductDAO dao = new ProductDAO();
-        List<Product> products = dao.getAllProducts();
-        for (Product p : products) {
+        List<Product> productsList = dao.getAllProducts();
+        for (Product p : productsList) {
             Object[] row = {
                 p.getBarcode(),
                 p.getSiName(),
+                p.getEnName(),
                 p.getWeladapalaMila(),
                 p.getApeMila(),
-                "🗑 Delete" 
             };
         
             model.addRow(row);
         }
+        
+        model.addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE) {
+                int row = e.getFirstRow();
+                int col = e.getColumn();
+
+                if (col == 4) { 
+                    String barcode = jTable1.getValueAt(row, 0).toString(); // barcode is key
+                    Object newValue = jTable1.getValueAt(row, col);
+
+                    try {
+                        double newPrice = Double.parseDouble(newValue.toString());
+
+                        boolean success = dao.updateApeMila(barcode, newPrice);
+
+                        if (success) {
+                            JOptionPane.showMessageDialog(jTable1, "✅ Price updated for " + barcode);
+                        } else {
+                            JOptionPane.showMessageDialog(jTable1, "❌ Failed to update DB");
+                        }
+
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(jTable1, "⚠️ Invalid price entered!");
+                        loadProductsTable(jTable1, null);
+                    }
+                }
+            }
+        });
 
         table.setModel(model);
+        
+        jTable1.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
+        
+        jTable1.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "deleteRow");
+        
+        jTable1.getActionMap().put("deleteRow", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = jTable1.getSelectedRow();
+                if(selectedRow == -1) {
+                    JOptionPane.showMessageDialog(jTable1, "⚠️ Please select a product to delete.");
+                    return;
+                }
+                String barcode = jTable1.getValueAt(selectedRow, 0).toString();
+
+        int confirm = JOptionPane.showConfirmDialog(
+                jTable1,
+                "Are you sure you want to delete product with barcode " + barcode + "?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            ProductDAO dao = new ProductDAO();
+            boolean success = dao.deleteProduct(barcode);
+
+            if (success) {
+                JOptionPane.showMessageDialog(jTable1, "✅ Product deleted successfully!");
+                loadProductsTable(jTable1, null); 
+            } else {
+                JOptionPane.showMessageDialog(jTable1, "❌ Failed to delete product!");
+            }
+        }
+            }
+        });
     }
     
     public JTable getProductTable() {
         return jTable1;
     }
     
-   
-    
-    private void loadProductsToTable(JTable table, List<Product> products) {
-    String[] columns = {"Bar Code", "Product Name (SI)", "වෙළඳපල මිල", "අපේ මිල", "Remove"};
-    DefaultTableModel model = new DefaultTableModel(columns, 0);
-
-    for (Product p : products) {
-        Object[] row = {
-            p.getBarcode(),
-            p.getSiName(),
-            p.getWeladapalaMila(),
-            p.getApeMila(),
-             "🗑 Delete"
-        };
-        model.addRow(row);
-    }
-
-    table.setModel(model);
-}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;
