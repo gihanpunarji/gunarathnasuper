@@ -157,7 +157,7 @@
               <Font name="Iskoola Pota" size="18" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="33" green="33" red="33" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="&#xdb6;&#xdd2;&#xdbd;&#xdca;&#xdb4;&#xdad;&#xdca;"/>
@@ -183,7 +183,7 @@
               <Font name="Iskoola Pota" size="18" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="33" green="33" red="33" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="&#xdc0;&#xdcf;&#xdbb;&#xdca;&#xdae;&#xdcf;"/>
@@ -209,7 +209,7 @@
               <Font name="Iskoola Pota" size="18" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="33" green="33" red="33" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="&#xdab;&#xdba; &#xd9c;&#xdab;&#xdd4;&#xdaf;&#xdd9;&#xdb1;&#xdd4;&#xd9a;&#xdbb;&#xdd4;&#xdc0;&#xdb1;&#xdca;"/>
@@ -235,7 +235,7 @@
               <Font name="Iskoola Pota" size="18" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="33" green="33" red="33" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="&#xdb6;&#xdd2;&#xdbd;&#xdca;&#xdb4;&#xdad;&#xdca; &#xd89;&#xdad;&#xdd2;&#xdc4;&#xdcf;&#xdc3;&#xdba;"/>
@@ -261,7 +261,7 @@
               <Font name="Iskoola Pota" size="18" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="33" green="33" red="33" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="&#xdb7;&#xdcf;&#xdab;&#xdca;&#xda9;"/>
