@@ -288,7 +288,6 @@ public class ProductManagemnt extends javax.swing.JPanel {
         Object[] row = {
             p.getBarcode(),
             p.getSiName(),
-            p.getEnName(),
             p.getWeladapalaMila(),
             p.getApeMila(),
              "🗑 Delete"
