@@ -26,8 +26,9 @@ public class POSApplication extends javax.swing.JFrame {
         LiveClock();
         loadDashboard();
     }
+
     @SuppressWarnings("unchecked")
-    
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -67,7 +68,7 @@ public class POSApplication extends javax.swing.JFrame {
 
         jLabel8.setBackground(new java.awt.Color(187, 154, 177));
         jLabel8.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("බිල්පත්");
         jLabel8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
@@ -80,7 +81,7 @@ public class POSApplication extends javax.swing.JFrame {
 
         jLabel9.setBackground(new java.awt.Color(187, 154, 177));
         jLabel9.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("වාර්ථා");
         jLabel9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
@@ -93,7 +94,7 @@ public class POSApplication extends javax.swing.JFrame {
 
         jLabel12.setBackground(new java.awt.Color(187, 154, 177));
         jLabel12.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel12.setText("ණය ගණුදෙනුකරුවන්");
         jLabel12.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
@@ -106,7 +107,7 @@ public class POSApplication extends javax.swing.JFrame {
 
         jLabel10.setBackground(new java.awt.Color(187, 154, 177));
         jLabel10.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel10.setText("බිල්පත් ඉතිහාසය");
         jLabel10.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
@@ -119,7 +120,7 @@ public class POSApplication extends javax.swing.JFrame {
 
         jLabel11.setBackground(new java.awt.Color(187, 154, 177));
         jLabel11.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel11.setText("භාණ්ඩ");
         jLabel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
@@ -266,6 +267,7 @@ public class POSApplication extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_jLabel9MouseClicked
+
     private void loadDashboard() {
         mainJPanel.removeAll();
         BillDashboard bd = new BillDashboard();

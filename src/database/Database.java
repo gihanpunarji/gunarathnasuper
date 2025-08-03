@@ -32,56 +32,97 @@ public class Database {
         }
         return instance;
     }
-    
+
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL);
     }
 
- 
     private void addTables() {
         try (Statement stmt = conn.createStatement()) {
-
             // Enable foreign key constraint
             stmt.execute("PRAGMA foreign_keys = ON");
 
             // Products table
-            stmt.execute("CREATE TABLE IF NOT EXISTS products (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "barcode TEXT UNIQUE NOT NULL," +
-                    "si_name TEXT NOT NULL," +
-                    "en_name TEXT NOT NULL," +
-                    "weladapala_mila REAL NOT NULL," +
-                    "ape_mila REAL NOT NULL)");
+            stmt.execute("CREATE TABLE IF NOT EXISTS products ("
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "barcode TEXT UNIQUE NOT NULL,"
+                    + "si_name TEXT NOT NULL,"
+                    + "en_name TEXT NOT NULL,"
+                    + "weladapala_mila REAL NOT NULL,"
+                    + "ape_mila REAL NOT NULL)");
 
-            // Creditors table
-            stmt.execute("CREATE TABLE IF NOT EXISTS creditors (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "name TEXT NOT NULL," +
-                    "total_debt REAL NOT NULL DEFAULT 0)");
+            // Creditors table - check if it exists first
+            boolean creditorsTableExists = checkTableExists(stmt, "creditors");
+            boolean hasLastCreditDate = false;
+
+            if (creditorsTableExists) {
+                // Check if last_credit_date column exists
+                hasLastCreditDate = checkColumnExists(stmt, "creditors", "last_credit_date");
+            }
+
+            if (!creditorsTableExists) {
+                // Create new table with last_credit_date column
+                stmt.execute("CREATE TABLE creditors ("
+                        + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + "name TEXT NOT NULL,"
+                        + "total_debt REAL NOT NULL DEFAULT 0,"
+                        + "last_credit_date TEXT)");
+                System.out.println("Created creditors table with last_credit_date column");
+            } else if (!hasLastCreditDate) {
+                // Add column to existing table with NULL default (SQLite compatible)
+                stmt.execute("ALTER TABLE creditors ADD COLUMN last_credit_date TEXT");
+                // Update existing records with current date
+                stmt.execute("UPDATE creditors SET last_credit_date = datetime('now', 'localtime') WHERE last_credit_date IS NULL");
+                System.out.println("Added last_credit_date column to existing creditors table");
+            }
 
             // Bills table
-            stmt.execute("CREATE TABLE IF NOT EXISTS bills (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "datetime TEXT NOT NULL," +
-                    "total_amount REAL NOT NULL," +
-                    "paid_amount REAL NOT NULL," +
-                    "creditor_id INTEGER," + // null for cash customer
+            stmt.execute("CREATE TABLE IF NOT EXISTS bills ("
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "datetime TEXT NOT NULL,"
+                    + "total_amount REAL NOT NULL,"
+                    + "paid_amount REAL NOT NULL,"
+                    + "creditor_id INTEGER,"
+                    + // null for cash customer
                     "FOREIGN KEY(creditor_id) REFERENCES creditors(id))");
 
             // Bill items table
-            stmt.execute("CREATE TABLE IF NOT EXISTS bill_items (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "bill_id INTEGER NOT NULL," +
-                    "barcode TEXT NOT NULL," +
-                    "product_name TEXT NOT NULL," +
-                    "marked_price REAL NOT NULL," +
-                    "sold_price REAL NOT NULL," +
-                    "quantity INTEGER NOT NULL," +
-                    "FOREIGN KEY(bill_id) REFERENCES bills(id) ON DELETE CASCADE");
+            stmt.execute("CREATE TABLE IF NOT EXISTS bill_items ("
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "bill_id INTEGER NOT NULL,"
+                    + "barcode TEXT NOT NULL,"
+                    + "product_name TEXT NOT NULL,"
+                    + "marked_price REAL NOT NULL,"
+                    + "sold_price REAL NOT NULL,"
+                    + "quantity INTEGER NOT NULL,"
+                    + "FOREIGN KEY(bill_id) REFERENCES bills(id) ON DELETE CASCADE");
 
-            System.out.println("Tables initialized");
+            System.out.println("Tables initialized successfully");
         } catch (SQLException e) {
             System.err.println("Table Init Error: " + e.getMessage());
+        }
+    }
+
+    private boolean checkTableExists(Statement stmt, String tableName) {
+        try {
+            var rs = stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
+            return rs.next();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    private boolean checkColumnExists(Statement stmt, String tableName, String columnName) {
+        try {
+            var rs = stmt.executeQuery("PRAGMA table_info(" + tableName + ")");
+            while (rs.next()) {
+                if (columnName.equals(rs.getString("name"))) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            return false;
         }
     }
 }
