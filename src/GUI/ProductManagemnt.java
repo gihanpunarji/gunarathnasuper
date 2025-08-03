@@ -4,6 +4,18 @@
  */
 package GUI;
 
+import java.sql.ResultSet;
+import dao.ProductDAO;
+import database.Database;
+import dto.Product;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 /**
  *
  * @author Sunet
@@ -15,6 +27,8 @@ public class ProductManagemnt extends javax.swing.JPanel {
      */
     public ProductManagemnt() {
         initComponents();
+        loadProductsTable(jTable1);
+        jLabel2.setText(String.valueOf(jTable1.getRowCount()));
     }
 
     /**
@@ -58,6 +72,11 @@ public class ProductManagemnt extends javax.swing.JPanel {
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField2ActionPerformed(evt);
+            }
+        });
+        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField2KeyReleased(evt);
             }
         });
 
@@ -227,11 +246,64 @@ public class ProductManagemnt extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        AddProduct addProduct = new AddProduct();
+        AddProduct addProduct = new AddProduct(this);
         addProduct.setLocationRelativeTo(this);
         addProduct.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
+        String keyword = jTextField2.getText().trim();
+        ProductDAO dao = new ProductDAO();
+        List<Product> result = dao.searchProducts(keyword);
+        loadProductsToTable(jTable1, result);
+    }//GEN-LAST:event_jTextField2KeyReleased
+
+    public void loadProductsTable(JTable table) {
+        String columns[] = {"Bar Code", "Product Name (SI)", "වෙළඳපල මිල", "අපේ මිල", "Remove"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        
+        ProductDAO dao = new ProductDAO();
+        List<Product> products = dao.getAllProducts();
+
+        for (Product p : products) {
+            Object[] row = {
+                p.getBarcode(),
+                p.getEnName(),
+                p.getWeladapalaMila(),
+                p.getApeMila(),
+                "🗑 Delete" 
+            };
+        
+            model.addRow(row);
+        }
+
+        table.setModel(model);
+    }
+    
+    public JTable getProductTable() {
+        return jTable1;
+    }
+    
+   
+    
+    private void loadProductsToTable(JTable table, List<Product> products) {
+    String[] columns = {"Bar Code", "Product Name (SI)", "වෙළඳපල මිල", "අපේ මිල", "Remove"};
+    DefaultTableModel model = new DefaultTableModel(columns, 0);
+
+    for (Product p : products) {
+        Object[] row = {
+            p.getBarcode(),
+            p.getSiName(),
+            p.getEnName(),
+            p.getWeladapalaMila(),
+            p.getApeMila(),
+             "🗑 Delete"
+        };
+        model.addRow(row);
+    }
+
+    table.setModel(model);
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;
