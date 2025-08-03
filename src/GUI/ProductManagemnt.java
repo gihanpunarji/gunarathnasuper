@@ -258,7 +258,6 @@ public class ProductManagemnt extends javax.swing.JPanel {
         
         ProductDAO dao = new ProductDAO();
         List<Product> products = dao.getAllProducts();
-
         for (Product p : products) {
             Object[] row = {
                 p.getBarcode(),
