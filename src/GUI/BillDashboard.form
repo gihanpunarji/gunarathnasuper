@@ -181,8 +181,8 @@
                       <Table columnCount="6" rowCount="0">
                         <Column editable="true" title="&#xd85;&#xdba;&#xdd2;&#xdad;&#xdb8; &#xdb1;&#xdb8;" type="java.lang.Object"/>
                         <Column editable="true" title="&#xdb4;&#xdca;&#x200d;&#xdbb;&#xdb8;&#xdcf;&#xdab;&#xdba;" type="java.lang.Integer"/>
-                        <Column editable="true" title="&#xd92;&#xd9a;&#xd9a; &#xdb8;&#xdd2;&#xdbd;" type="java.lang.Double"/>
-                        <Column editable="true" title="&#xdc0;&#xda7;&#xdca;&#xda7;&#xdb8;" type="java.lang.Double"/>
+                        <Column editable="true" title="&#xdc0;&#xdd9;&#xdbd;&#xdaf;&#xdb4;&#xdbd; &#xdb8;&#xdd2;&#xdbd;" type="java.lang.Double"/>
+                        <Column editable="true" title="&#xd85;&#xdb4;&#xdda; &#xdb8;&#xdd2;&#xdbd;" type="java.lang.Double"/>
                         <Column editable="true" title="&#xdb8;&#xdd4;&#xdc5;&#xdd4; &#xdb8;&#xdd4;&#xdaf;&#xdbd;" type="java.lang.Double"/>
                         <Column editable="true" title="&#xd9a;&#xdca;&#x200d;&#xdbb;&#xdd2;&#xdba;&#xdcf;" type="java.lang.Object"/>
                       </Table>
@@ -265,16 +265,11 @@
                                       </Group>
                                   </Group>
                               </Group>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jTextField6" alignment="0" min="-2" pref="270" max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
+                                  <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jTextField6" alignment="0" min="-2" pref="270" max="-2" attributes="0"/>
                                   <Group type="102" alignment="1" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jButton3" min="-2" pref="213" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                                   </Group>
@@ -385,7 +380,7 @@
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Iskoola Pota" size="18" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="&#xd92;&#xd9a;&#xd9a; &#xdb8;&#xdd2;&#xdbd; (&#xdbb;&#xdd4;.)"/>
+                <Property name="text" type="java.lang.String" value="&#xdc0;&#xdd9;&#xdbd;&#xdaf;&#xdb4;&#xdbd; &#xdb8;&#xdd2;&#xdbd;"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel9">
@@ -393,7 +388,7 @@
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Iskoola Pota" size="18" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="&#xdc0;&#xda7;&#xdca;&#xda7;&#xdb8;"/>
+                <Property name="text" type="java.lang.String" value="&#xd85;&#xdb4;&#xdda; &#xdb8;&#xdd2;&#xdbd;"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="jTextField5">
