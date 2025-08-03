@@ -9,7 +9,10 @@ import dto.Product;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -255,116 +258,230 @@ public class ProductManagemnt extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
-        String keyword = jTextField2.getText().trim();
-        ProductDAO dao = new ProductDAO();
-        List<Product> result = dao.searchProducts(keyword);
-        loadProductsTable(jTable1, result);
+        try {
+            String keyword = jTextField2.getText();
+            if (keyword == null) {
+                keyword = "";
+            }
+            keyword = keyword.trim();
+
+            ProductDAO dao = new ProductDAO();
+            List<Product> result = dao.searchProducts(keyword);
+            loadProductsTable(jTable1, result);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "❌ Error during search: " + ex.getMessage(),
+                    "Search Error",
+                    JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace(); // For debugging
+        }
     }//GEN-LAST:event_jTextField2KeyReleased
 
     public void loadProductsTable(JTable table, List<Product> products) {
-        String columns[] = {"Bar Code", "Product Name (SI)","Product Name (EN)", "වෙළඳපල මිල", "අපේ මිල"};
-        
-        DefaultTableModel model = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                if(column == 0 || column == 1 ||  column == 2 || column == 3) {
-                    return false;
-                }
-                return true;
+        try {
+            // Validate input parameters
+            if (table == null) {
+                throw new IllegalArgumentException("Table cannot be null");
             }
-        };
-        
-        
-        JTableHeader header = jTable1.getTableHeader();
-        header.setBackground(new Color(204, 127, 84));
-        header.setForeground(new Color(255, 255, 255));
-        
-        ProductDAO dao = new ProductDAO();
-        List<Product> productsList = dao.getAllProducts();
-        for (Product p : productsList) {
-            Object[] row = {
-                p.getBarcode(),
-                p.getSiName(),
-                p.getEnName(),
-                p.getWeladapalaMila(),
-                p.getApeMila(),
+
+            String columns[] = {"Bar Code", "Product Name (SI)", "Product Name (EN)", "වෙළඳපල මිල", "අපේ මිල"};
+
+            DefaultTableModel model = new DefaultTableModel(columns, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    // Only the "අපේ මිල" column (index 4) is editable
+                    return column == 4;
+                }
             };
-        
-            model.addRow(row);
-        }
-        
-        model.addTableModelListener(e -> {
-            if (e.getType() == TableModelEvent.UPDATE) {
-                int row = e.getFirstRow();
-                int col = e.getColumn();
 
-                if (col == 4) { 
-                    String barcode = jTable1.getValueAt(row, 0).toString(); // barcode is key
-                    Object newValue = jTable1.getValueAt(row, col);
+            // Set table header styling
+            JTableHeader header = table.getTableHeader();
+            if (header != null) {
+                header.setBackground(new Color(204, 127, 84));
+                header.setForeground(new Color(255, 255, 255));
+            }
 
-                    try {
-                        double newPrice = Double.parseDouble(newValue.toString());
+            ProductDAO dao = new ProductDAO();
 
-                        boolean success = dao.updateApeMila(barcode, newPrice);
+            // Use provided products list or get all products
+            List<Product> productsList;
+            if (products != null) {
+                productsList = products;
+            } else {
+                productsList = dao.getAllProducts();
+            }
 
-                        if (success) {
-                            JOptionPane.showMessageDialog(jTable1, "✅ Price updated for " + barcode);
-                        } else {
-                            JOptionPane.showMessageDialog(jTable1, "❌ Failed to update DB");
-                        }
-
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(jTable1, "⚠️ Invalid price entered!");
-                        loadProductsTable(jTable1, null);
+            // Validate products list
+            if (productsList != null) {
+                for (Product p : productsList) {
+                    if (p != null) { // Check for null products
+                        Object[] row = {
+                            p.getBarcode() != null ? p.getBarcode() : "",
+                            p.getSiName() != null ? p.getSiName() : "",
+                            p.getEnName() != null ? p.getEnName() : "",
+                            p.getWeladapalaMila(),
+                            p.getApeMila()
+                        };
+                        model.addRow(row);
                     }
                 }
             }
-        });
 
-        table.setModel(model);
-        
-        jTable1.getInputMap(JComponent.WHEN_FOCUSED)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
-        
-        jTable1.getInputMap(JComponent.WHEN_FOCUSED)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "deleteRow");
-        
-        jTable1.getActionMap().put("deleteRow", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = jTable1.getSelectedRow();
-                if(selectedRow == -1) {
-                    JOptionPane.showMessageDialog(jTable1, "⚠️ Please select a product to delete.");
-                    return;
+            // Add table model listener for price updates
+            model.addTableModelListener(e -> {
+                try {
+                    if (e.getType() == TableModelEvent.UPDATE) {
+                        int row = e.getFirstRow();
+                        int col = e.getColumn();
+
+                        // Only handle updates to the price column (column 4)
+                        if (col == 4 && row >= 0 && row < table.getRowCount()) {
+                            Object barcodeObj = table.getValueAt(row, 0);
+                            Object newValueObj = table.getValueAt(row, col);
+
+                            if (barcodeObj == null || newValueObj == null) {
+                                JOptionPane.showMessageDialog(table, "⚠️ Invalid data detected!");
+                                return;
+                            }
+
+                            String barcode = barcodeObj.toString().trim();
+
+                            if (barcode.isEmpty()) {
+                                JOptionPane.showMessageDialog(table, "⚠️ Barcode cannot be empty!");
+                                return;
+                            }
+
+                            try {
+                                double newPrice = Double.parseDouble(newValueObj.toString().trim());
+
+                                if (newPrice < 0) {
+                                    JOptionPane.showMessageDialog(table, "⚠️ Price cannot be negative!");
+                                    loadProductsTable(table, null);
+                                    return;
+                                }
+
+                                boolean success = dao.updateApeMila(barcode, newPrice);
+
+                                if (success) {
+                                    JOptionPane.showMessageDialog(table, "✅ Price updated for " + barcode);
+                                } else {
+                                    JOptionPane.showMessageDialog(table, "❌ Failed to update database");
+                                    // Reload table to revert changes
+                                    loadProductsTable(table, null);
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(table, "⚠️ Invalid price format! Please enter a valid number.");
+                                loadProductsTable(table, null);
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(table,
+                            "❌ Error updating price: " + ex.getMessage(),
+                            "Update Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                    // Reload table to ensure consistency
+                    loadProductsTable(table, null);
                 }
-                String barcode = jTable1.getValueAt(selectedRow, 0).toString();
+            });
 
-        int confirm = JOptionPane.showConfirmDialog(
-                jTable1,
-                "Are you sure you want to delete product with barcode " + barcode + "?",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION
-        );
+            table.setModel(model);
 
-        if (confirm == JOptionPane.YES_OPTION) {
-            ProductDAO dao = new ProductDAO();
-            boolean success = dao.deleteProduct(barcode);
+            // Set up delete functionality with DELETE and BACKSPACE keys
+            setupDeleteAction(table, dao);
 
-            if (success) {
-                JOptionPane.showMessageDialog(jTable1, "✅ Product deleted successfully!");
-                loadProductsTable(jTable1, null); 
-            } else {
-                JOptionPane.showMessageDialog(jTable1, "❌ Failed to delete product!");
-            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(table != null ? table : null,
+                    "❌ Error loading products table: " + ex.getMessage(),
+                    "Loading Error",
+                    JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
-            }
-        });
     }
-    
+
+    private void setupDeleteAction(JTable table, ProductDAO dao) {
+        try {
+            // Remove existing key bindings to avoid duplicates
+            table.getInputMap(JComponent.WHEN_FOCUSED).remove(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+            table.getInputMap(JComponent.WHEN_FOCUSED).remove(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0));
+
+            // Set up new key bindings
+            table.getInputMap(JComponent.WHEN_FOCUSED)
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
+
+            table.getInputMap(JComponent.WHEN_FOCUSED)
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "deleteRow");
+
+            table.getActionMap().put("deleteRow", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int selectedRow = table.getSelectedRow();
+                        if (selectedRow == -1) {
+                            JOptionPane.showMessageDialog(table, "⚠️ Please select a product to delete.");
+                            return;
+                        }
+
+                        if (selectedRow >= table.getRowCount()) {
+                            JOptionPane.showMessageDialog(table, "⚠️ Invalid row selected.");
+                            return;
+                        }
+
+                        Object barcodeObj = table.getValueAt(selectedRow, 0);
+                        if (barcodeObj == null) {
+                            JOptionPane.showMessageDialog(table, "⚠️ Cannot delete product: Invalid barcode.");
+                            return;
+                        }
+
+                        String barcode = barcodeObj.toString().trim();
+                        if (barcode.isEmpty()) {
+                            JOptionPane.showMessageDialog(table, "⚠️ Cannot delete product: Empty barcode.");
+                            return;
+                        }
+
+                        int confirm = JOptionPane.showConfirmDialog(
+                                table,
+                                "Are you sure you want to delete product with barcode " + barcode + "?",
+                                "Confirm Delete",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE
+                        );
+
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            boolean success = dao.deleteProduct(barcode);
+
+                            if (success) {
+                                JOptionPane.showMessageDialog(table, "✅ Product deleted successfully!");
+                                // Refresh the table
+                                loadProductsTable(table, null);
+                            } else {
+                                JOptionPane.showMessageDialog(table, "❌ Failed to delete product from database!");
+                            }
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(table,
+                                "❌ Error deleting product: " + ex.getMessage(),
+                                "Delete Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(table,
+                    "❌ Error setting up delete functionality: " + ex.getMessage(),
+                    "Setup Error",
+                    JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
     public JTable getProductTable() {
         return jTable1;
     }
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;
