@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author gihanpunarji
@@ -20,11 +22,14 @@ public class Database {
     
     private Database() {
         try{
+            Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection(URL);
             System.out.println("SQL lite Initialized");
             addTable();
         } catch (SQLException e) {
             System.out.println(e +" SQLite Exception");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -44,12 +49,12 @@ public class Database {
         try (Statement stmt = conn.createStatement()) {
             // Products table
             stmt.execute("CREATE TABLE IF NOT EXISTS products (" +
-                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                         "barcode TEXT PRIMARY," +
-                         "si_name TEXT NOT NULL," +
-                         "en_name TEXT NOT NULL," +
-                         "weladapala_mila REAL NOT NULL," +
-                         "ape_mila REAL NOT NULL,");
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "barcode TEXT UNIQUE NOT NULL," +
+                        "si_name TEXT NOT NULL," +
+                        "en_name TEXT NOT NULL," +
+                        "weladapala_mila REAL NOT NULL," +
+                        "ape_mila REAL NOT NULL)");
 
             // Sales table
             stmt.execute("CREATE TABLE IF NOT EXISTS sales (" +

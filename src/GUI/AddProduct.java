@@ -4,14 +4,24 @@
  */
 package GUI;
 
+import dao.ProductDAO;
+import dto.Product;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Sunet
  */
 public class AddProduct extends javax.swing.JFrame {
+    
+    private ProductManagemnt productManagemnt;
 
-    public AddProduct() {
+    public AddProduct(ProductManagemnt ProductManagemnt) {
         initComponents();
+        this.productManagemnt = ProductManagemnt;
     }
 
 
@@ -173,9 +183,37 @@ public class AddProduct extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-
+        
+        String barcode = jTextField2.getText();
+        String siName = jTextField5.getText();
+        String enName = jTextField6.getText();
+        double weladapolaMila = Double.parseDouble(jTextField7.getText().trim());
+        double apeMila = Double.parseDouble(jTextField8.getText().trim());
+        
+        Product product = new Product(barcode, siName, enName, weladapolaMila, apeMila);
+        
+        ProductDAO productDAO = new ProductDAO();
+        boolean success = productDAO.addProduct(product);
+        productManagemnt.loadProductsTable(productManagemnt.getProductTable());
+        
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "✅ Product added successfully!");
+            clearFields();
+            
+        } else {
+            JOptionPane.showMessageDialog(this, "❌ Failed to add product.");
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    public void clearFields() {
+        jTextField2.setText("");
+        jTextField5.setText("");
+        jTextField7.setText("");
+        jTextField8.setText("");
+        jTextField6.setText("");
+    }
+    
     private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField8ActionPerformed
