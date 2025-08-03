@@ -157,15 +157,22 @@ public class ProductManagemnt extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Bar Code", "නිශ්පාදනය", "වට්ටම", "මිල", "", ""
+                "Bar Code", "භාණඩයේ නම", "වෙළඳපල මිල", "අපේ මිල", ""
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Long.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Long.class, java.lang.String.class, java.lang.Double.class, java.lang.Double.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jTable1.setShowGrid(true);
@@ -220,7 +227,9 @@ public class ProductManagemnt extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        AddProduct addProduct = new AddProduct();
+        addProduct.setLocationRelativeTo(this);
+        addProduct.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
 

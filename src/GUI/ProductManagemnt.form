@@ -281,14 +281,42 @@
                 <Component class="javax.swing.JTable" name="jTable1">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="6" rowCount="0">
-                        <Column editable="true" title="Bar Code" type="java.lang.Long"/>
-                        <Column editable="true" title="&#xdb1;&#xdd2;&#xdc1;&#xdca;&#xdb4;&#xdcf;&#xdaf;&#xdb1;&#xdba;" type="java.lang.Object"/>
-                        <Column editable="true" title="&#xdc0;&#xda7;&#xdca;&#xda7;&#xdb8;" type="java.lang.Double"/>
-                        <Column editable="true" title="&#xdb8;&#xdd2;&#xdbd;" type="java.lang.Double"/>
-                        <Column editable="true" title="" type="java.lang.Object"/>
+                      <Table columnCount="5" rowCount="0">
+                        <Column editable="false" title="Bar Code" type="java.lang.Long"/>
+                        <Column editable="false" title="&#xdb7;&#xdcf;&#xdab;&#xda9;&#xdba;&#xdda; &#xdb1;&#xdb8;" type="java.lang.String"/>
+                        <Column editable="true" title="&#xdc0;&#xdd9;&#xdc5;&#xdb3;&#xdb4;&#xdbd; &#xdb8;&#xdd2;&#xdbd;" type="java.lang.Double"/>
+                        <Column editable="true" title="&#xd85;&#xdb4;&#xdda; &#xdb8;&#xdd2;&#xdbd;" type="java.lang.Double"/>
                         <Column editable="true" title="" type="java.lang.Object"/>
                       </Table>
+                    </Property>
+                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                      <TableColumnModel selectionModel="0">
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                          <Title/>
+                          <Editor/>
+                          <Renderer/>
+                        </Column>
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                          <Title/>
+                          <Editor/>
+                          <Renderer/>
+                        </Column>
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                          <Title/>
+                          <Editor/>
+                          <Renderer/>
+                        </Column>
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                          <Title/>
+                          <Editor/>
+                          <Renderer/>
+                        </Column>
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                          <Title/>
+                          <Editor/>
+                          <Renderer/>
+                        </Column>
+                      </TableColumnModel>
                     </Property>
                     <Property name="showGrid" type="boolean" value="true"/>
                     <Property name="surrendersFocusOnKeystroke" type="boolean" value="true"/>
