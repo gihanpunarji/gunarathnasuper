@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author gihanpunarji
  */
 public class ProductDAO {
-    public boolean addProduct(Product product) {
+    public boolean addProduct(Product product) throws SQLException {
         String sql = "INSERT INTO products (barcode, si_name, en_name, weladapala_mila, ape_mila)"
                 + " VALUES (?, ?, ?, ?, ?)";
         Connection connection = Database.getInstace().getConnection();
@@ -41,7 +41,7 @@ public class ProductDAO {
     }
     
     
-    public List<Product> getAllProducts() {
+    public List<Product> getAllProducts() throws SQLException {
         
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products ORDER BY id DESC";
@@ -67,7 +67,7 @@ public class ProductDAO {
     return products;
     }
     
-    public List<Product> searchProducts(String keyword) {
+    public List<Product> searchProducts(String keyword) throws SQLException {
 
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE barcode LIKE ? "
@@ -101,7 +101,7 @@ public class ProductDAO {
         return products;
     } 
 
-    public boolean deleteProduct(String barcode) {
+    public boolean deleteProduct(String barcode) throws SQLException {
         Connection connection = Database.getInstace().getConnection();
         try(PreparedStatement pstmt = connection.prepareStatement("DELETE FROM products WHERE barcode = ?")) {
             pstmt.setString(1, barcode);
