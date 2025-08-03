@@ -107,7 +107,7 @@ public class BillDashboard extends javax.swing.JPanel {
 
             },
             new String [] {
-                "අයිතම නම", "ප්‍රමාණය", "ඒකක මිල", "වට්ටම", "මුළු මුදල", "ක්‍රියා"
+                "අයිතම නම", "ප්‍රමාණය", "වෙලදපල මිල", "අපේ මිල", "මුළු මුදල", "ක්‍රියා"
             }
         ) {
             Class[] types = new Class [] {
@@ -166,10 +166,10 @@ public class BillDashboard extends javax.swing.JPanel {
         jTextField4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         jLabel8.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
-        jLabel8.setText("ඒකක මිල (රු.)");
+        jLabel8.setText("වෙලදපල මිල");
 
         jLabel9.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
-        jLabel9.setText("වට්ටම");
+        jLabel9.setText("අපේ මිල");
 
         jTextField5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
