@@ -6,6 +6,9 @@ package GUI;
 
 import dao.ProductDAO;
 import dto.Product;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -196,7 +199,11 @@ public class AddProduct extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        addProduct();
+        try {
+            addProduct();
+        } catch (SQLException ex) {
+            Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -209,7 +216,11 @@ public class AddProduct extends javax.swing.JFrame {
     }
     
     private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
-        addProduct();
+        try {
+            addProduct();
+        } catch (SQLException ex) {
+            Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jTextField8ActionPerformed
 
     private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
@@ -224,7 +235,7 @@ public class AddProduct extends javax.swing.JFrame {
        jTextField8.requestFocus();
     }//GEN-LAST:event_jTextField7ActionPerformed
 
-    private void addProduct() {
+    private void addProduct() throws SQLException {
         String barcode = jTextField2.getText();
         String siName = jTextField5.getText();
         String enName = jTextField6.getText();
