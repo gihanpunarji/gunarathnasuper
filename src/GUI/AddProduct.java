@@ -6,10 +6,7 @@ package GUI;
 
 import dao.ProductDAO;
 import dto.Product;
-import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -66,6 +63,11 @@ public class AddProduct extends javax.swing.JFrame {
         jLabel9.setText("භාණ්ඩයේ නම");
 
         jTextField5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jTextField5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField5ActionPerformed(evt);
+            }
+        });
 
         jButton3.setBackground(new java.awt.Color(85, 88, 121));
         jButton3.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
@@ -84,8 +86,18 @@ public class AddProduct extends javax.swing.JFrame {
         jLabel10.setText("Product Name");
 
         jTextField6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jTextField6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField6ActionPerformed(evt);
+            }
+        });
 
         jTextField7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jTextField7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField7ActionPerformed(evt);
+            }
+        });
 
         jLabel11.setFont(new java.awt.Font("Iskoola Pota", 0, 14)); // NOI18N
         jLabel11.setText("වෙළඳපල මිල");
@@ -180,30 +192,12 @@ public class AddProduct extends javax.swing.JFrame {
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
+        jTextField5.requestFocus();
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        addProduct();
         
-        String barcode = jTextField2.getText();
-        String siName = jTextField5.getText();
-        String enName = jTextField6.getText();
-        double weladapolaMila = Double.parseDouble(jTextField7.getText().trim());
-        double apeMila = Double.parseDouble(jTextField8.getText().trim());
-        
-        Product product = new Product(barcode, siName, enName, weladapolaMila, apeMila);
-        
-        ProductDAO productDAO = new ProductDAO();
-        boolean success = productDAO.addProduct(product);
-        productManagemnt.loadProductsTable(productManagemnt.getProductTable());
-        
-        
-        if (success) {
-            JOptionPane.showMessageDialog(this, "✅ Product added successfully!");
-            clearFields();
-            
-        } else {
-            JOptionPane.showMessageDialog(this, "❌ Failed to add product.");
-        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     public void clearFields() {
@@ -215,9 +209,43 @@ public class AddProduct extends javax.swing.JFrame {
     }
     
     private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
-        // TODO add your handling code here:
+        addProduct();
     }//GEN-LAST:event_jTextField8ActionPerformed
 
+    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+        jTextField7.requestFocus();
+    }//GEN-LAST:event_jTextField6ActionPerformed
+
+    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+        jTextField6.requestFocus();
+    }//GEN-LAST:event_jTextField5ActionPerformed
+
+    private void jTextField7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField7ActionPerformed
+       jTextField8.requestFocus();
+    }//GEN-LAST:event_jTextField7ActionPerformed
+
+    private void addProduct() {
+        String barcode = jTextField2.getText();
+        String siName = jTextField5.getText();
+        String enName = jTextField6.getText();
+        double weladapolaMila = Double.parseDouble(jTextField7.getText().trim());
+        double apeMila = Double.parseDouble(jTextField8.getText().trim());
+        
+        Product product = new Product(barcode, siName, enName, weladapolaMila, apeMila);
+        
+        ProductDAO productDAO = new ProductDAO();
+        boolean success = productDAO.addProduct(product);
+        productManagemnt.loadProductsTable(productManagemnt.getProductTable(), null);
+        
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "✅ Product added successfully!");
+            clearFields();
+            
+        } else {
+            JOptionPane.showMessageDialog(this, "❌ Failed to add product(already added)");
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
