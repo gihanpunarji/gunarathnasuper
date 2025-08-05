@@ -315,7 +315,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
 
             TableColumnModel columnModel = table.getColumnModel();
             if (columnModel.getColumnCount() > 0) {
-                columnModel.getColumn(0).setPreferredWidth(50);
+                columnModel.getColumn(0).setPreferredWidth(20);
                 columnModel.getColumn(1).setPreferredWidth(120);
                 columnModel.getColumn(2).setPreferredWidth(180);
                 columnModel.getColumn(3).setPreferredWidth(180);

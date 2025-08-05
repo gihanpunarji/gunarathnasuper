@@ -42,11 +42,8 @@ public class ProductDAO {
             String insertSql = "INSERT INTO products (barcode, si_name, en_name, weladapala_mila, ape_mila) "
                     + "VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = connection.prepareStatement(insertSql)) {
-                if (barcode == null || barcode.isBlank()) {
-                    pstmt.setNull(1, java.sql.Types.NULL);
-                } else {
-                    pstmt.setString(1, barcode);
-                }
+
+                pstmt.setString(1, barcode);
                 pstmt.setString(2, product.getSiName());
                 pstmt.setString(3, product.getEnName());
                 pstmt.setDouble(4, product.getWeladapalaMila());

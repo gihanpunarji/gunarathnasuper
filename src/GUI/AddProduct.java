@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package GUI;
 
 import dao.ProductDAO;
@@ -249,12 +245,8 @@ public class AddProduct extends javax.swing.JFrame {
         String barcode;
 
         if (jTextField2.getText().isEmpty() || jTextField2.getText().isBlank() || jTextField2.getText().equals(" ")) {
-            barcode = null;
-        } else {
-            barcode = jTextField2.getText();
-        }
-
-        if (jTextField5.getText().isEmpty() || jTextField5.getText().isBlank() || jTextField5.getText().equals(" ")) {
+            JOptionPane.showMessageDialog(this, "❌ Please enter the code");
+        } else if (jTextField5.getText().isEmpty() || jTextField5.getText().isBlank() || jTextField5.getText().equals(" ")) {
             JOptionPane.showMessageDialog(this, "❌ Please enter Sinhala name");
         } else if (jTextField6.getText().isEmpty() || jTextField6.getText().isBlank() || jTextField6.getText().equals(" ")) {
             JOptionPane.showMessageDialog(this, "❌ Please enter English name");
@@ -263,6 +255,7 @@ public class AddProduct extends javax.swing.JFrame {
         } else if (jFormattedTextField2.getText().isEmpty() || jFormattedTextField2.getText().isBlank() || jFormattedTextField2.getText().equals(" ")) {
             JOptionPane.showMessageDialog(this, "❌ Please enter Ape mila");
         } else {
+            barcode = jTextField2.getText();
             String siName = jTextField5.getText();
             String enName = jTextField6.getText();
             double weladapolaMila = Double.parseDouble(jFormattedTextField1.getText().trim());
@@ -285,7 +278,7 @@ public class AddProduct extends javax.swing.JFrame {
     }
 
     private void setupNumberFields() {
-        
+
         DecimalFormat decimalFormat = new DecimalFormat("#0.00");
         NumberFormatter formatter = new NumberFormatter(decimalFormat);
         formatter.setValueClass(Double.class);
