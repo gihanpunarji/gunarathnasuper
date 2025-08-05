@@ -2,6 +2,7 @@ package GUI;
 
 import database.Database;
 import java.awt.Color;
+import java.awt.Font;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -354,14 +355,14 @@ public class CreditedCustomer extends javax.swing.JPanel {
                     + "COALESCE(c.last_credit_date, 'N/A') as last_credit_date, "
                     + "COALESCE(c.total_debt, 0.0) as total_debt "
                     + "FROM creditors c "
-                    + "ORDER BY c.total_debt DESC";
+                    + "ORDER BY c.last_credit_date DESC";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
-                DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "Name", "Last Credit Date", "Total Debt"}, 0) {
+                DefaultTableModel model = new DefaultTableModel(new String[]{"අනු අංකය", "නම", "අවසාන දිනය", "මුළු ණය"}, 0) {
                     @Override
                     public boolean isCellEditable(int row, int column) {
-                        return column == 3; // Only 4th column editable
+                        return column == 3;
                     }
 
                     @Override
@@ -393,12 +394,14 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
                 jTable3.setModel(model);
                 jTable3.getTableHeader().setReorderingAllowed(false);
+                jTable3.setFont(new Font("SansSerif", Font.PLAIN, 19));
                 addDebtEditListener();
 
                 JTableHeader header = jTable3.getTableHeader();
                 if (header != null) {
                     header.setBackground(new Color(204, 127, 84));
                     header.setForeground(Color.WHITE);
+                    header.setFont(new Font("SansSerif", Font.BOLD, 20));
                 }
 
             }
@@ -423,7 +426,7 @@ public class CreditedCustomer extends javax.swing.JPanel {
                 if (value instanceof Number) {
                     double newAmount = ((Number) value).doubleValue();
                     int confirm = JOptionPane.showConfirmDialog(this,
-                            "ඔබට '" + customerName + "' හි වට්ටම් මුදල " + newAmount + " ලෙස යාවත්කාලීන කිරීමට අවශ්‍යද?",
+                            "ඔබට '" + customerName + "' හි වට්ටම් මුදල " + value + newAmount + " ලෙස යාවත්කාලීන කිරීමට අවශ්‍යද?",
                             "තහවුරු කිරීම", JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
                         if (updateCreditedAmount(customerId, newAmount)) {
