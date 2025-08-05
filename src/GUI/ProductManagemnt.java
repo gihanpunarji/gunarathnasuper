@@ -291,7 +291,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
             if (header != null) {
                 header.setBackground(new Color(225, 176, 154));
                 header.setForeground(Color.WHITE);
-                header.setFont(new Font("SansSerif", Font.BOLD, 24));
+                header.setFont(new Font("SansSerif", Font.BOLD, 21));
             }
 
             ProductDAO dao = new ProductDAO();
@@ -309,6 +309,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
                             p.getApeMila()
                         };
                         model.addRow(row);
+                        jLabel2.setText(String.valueOf(jTable1.getRowCount()));
                     }
                 }
             }
@@ -422,7 +423,6 @@ public class ProductManagemnt extends javax.swing.JPanel {
 
                             if (success) {
                                 JOptionPane.showMessageDialog(table, "✅ Product deleted successfully!");
-                                // Refresh the table
                                 loadProductsTable(table, null);
                             } else {
                                 JOptionPane.showMessageDialog(table, "❌ Failed to delete product from database!");

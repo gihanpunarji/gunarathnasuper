@@ -119,6 +119,40 @@ public class ProductDAO {
 
         return products;
     }
+    
+    public List<Product> getProductByCode(String code) throws SQLException {
+
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM products WHERE barcode = ? ";
+
+        Connection connection = Database.getInstace().getConnection();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            String searchKey = code;
+
+            pstmt.setString(1, searchKey);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                System.out.println(rs.getString("en_name"));
+                System.out.println(rs.getString("si_name"));
+                Product p = new Product(
+                        rs.getString("barcode"),
+                        rs.getString("si_name"),
+                        rs.getString("en_name"),
+                        rs.getDouble("weladapala_mila"),
+                        rs.getDouble("ape_mila"));
+
+                products.add(p);
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(products);
+        return products;
+    }
 
     public boolean deleteProduct(String id) throws SQLException {
         Connection connection = Database.getInstace().getConnection();

@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
+import util.CustomNumberFormatFactory;
 
 /**
  *
@@ -22,7 +23,10 @@ public class AddProduct extends javax.swing.JFrame {
 
     public AddProduct(ProductManagemnt ProductManagemnt) {
         initComponents();
-        setupNumberFields();
+        
+        CustomNumberFormatFactory.applyDecimalFormat(jFormattedTextField1);
+        CustomNumberFormatFactory.applyDecimalFormat(jFormattedTextField2);
+        
         this.productManagemnt = ProductManagemnt;
     }
 
@@ -213,8 +217,8 @@ public class AddProduct extends javax.swing.JFrame {
         SwingUtilities.invokeLater(() -> {
             jTextField2.setText("");
             jTextField5.setText("");
-            jFormattedTextField1.setText("");
-            jFormattedTextField2.setText("");
+            jFormattedTextField1.setValue(null);
+            jFormattedTextField2.setValue(null);
             jTextField6.setText("");
             jTextField2.requestFocus();
         });
@@ -270,6 +274,7 @@ public class AddProduct extends javax.swing.JFrame {
             if (success) {
                 JOptionPane.showMessageDialog(this, "✅ Product added successfully!");
                 clearFields();
+                jTextField2.grabFocus();
 
             } else {
                 JOptionPane.showMessageDialog(this, "❌ Failed to add product(already added)");
@@ -277,17 +282,6 @@ public class AddProduct extends javax.swing.JFrame {
         }
     }
 
-    private void setupNumberFields() {
-
-        DecimalFormat decimalFormat = new DecimalFormat("#0.00");
-        NumberFormatter formatter = new NumberFormatter(decimalFormat);
-        formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(false);
-        formatter.setMinimum(0.0);
-
-        jFormattedTextField1.setFormatterFactory(new DefaultFormatterFactory(formatter));
-        jFormattedTextField2.setFormatterFactory(new DefaultFormatterFactory(formatter));
-    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

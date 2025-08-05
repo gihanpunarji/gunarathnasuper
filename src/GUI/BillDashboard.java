@@ -6,20 +6,21 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-
 
 public class BillDashboard extends javax.swing.JPanel {
 
@@ -42,7 +43,6 @@ public class BillDashboard extends javax.swing.JPanel {
         jTable2 = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        barcodeInput = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
@@ -53,6 +53,7 @@ public class BillDashboard extends javax.swing.JPanel {
         jFormattedTextField7 = new javax.swing.JFormattedTextField();
         jFormattedTextField8 = new javax.swing.JFormattedTextField();
         jFormattedTextField9 = new javax.swing.JFormattedTextField();
+        barcodeInput = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         customerNameField = new javax.swing.JTextField();
@@ -155,13 +156,6 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel5.setFont(new java.awt.Font("Cascadia Code", 0, 18)); // NOI18N
         jLabel5.setText("BarCode");
 
-        barcodeInput.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        barcodeInput.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                barcodeInputActionPerformed(evt);
-            }
-        });
-
         jLabel6.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
         jLabel6.setText("නිෂ්පාදනය");
 
@@ -224,6 +218,13 @@ public class BillDashboard extends javax.swing.JPanel {
             }
         });
 
+        barcodeInput.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        barcodeInput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                barcodeInputActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -235,8 +236,8 @@ public class BillDashboard extends javax.swing.JPanel {
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(barcodeInput, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(barcodeInput, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(24, 24, 24)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -282,15 +283,15 @@ public class BillDashboard extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jFormattedTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jFormattedTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(barcodeInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(barcodeInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(29, 29, 29))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(32, 32, 32)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel9)
@@ -654,21 +655,24 @@ public class BillDashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
 
-    private void barcodeInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barcodeInputActionPerformed
-        jTextField2.requestFocus();
-    }//GEN-LAST:event_barcodeInputActionPerformed
-
     private void jFormattedTextField7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField7ActionPerformed
         jFormattedTextField8.requestFocus();
     }//GEN-LAST:event_jFormattedTextField7ActionPerformed
 
     private void jFormattedTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField8ActionPerformed
-       jFormattedTextField9.requestFocus();
+        jFormattedTextField9.requestFocus();
     }//GEN-LAST:event_jFormattedTextField8ActionPerformed
 
     private void jFormattedTextField9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField9ActionPerformed
         getInputs(jTable1);
     }//GEN-LAST:event_jFormattedTextField9ActionPerformed
+
+    private void barcodeInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barcodeInputActionPerformed
+        if (barcodeInput.getText().isEmpty()) {
+            checkProduct(barcodeInput.getText());
+        }
+        jFormattedTextField7.requestFocus();
+    }//GEN-LAST:event_barcodeInputActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -732,23 +736,22 @@ public class BillDashboard extends javax.swing.JPanel {
         String creditedCustomerName = customerNameField.getText();
         boolean creditedCustomer = jCheckBox1.isSelected();
         String barcodeInput = this.barcodeInput.getText();
-        String itemName = jTextField2.getText();
+//        String itemName = jTextField2.getText();
         double quantity = Double.parseDouble(jFormattedTextField7.getText());
         double weladapolaMila = Double.parseDouble(jFormattedTextField8.getText());
         double apeMila = Double.parseDouble(jFormattedTextField9.getText());
-        
-        
+
         try {
             if (table == null) {
                 throw new IllegalArgumentException("Table cannot be null");
             }
 
             String columns[] = {"Id", "අයිතම නම", "ප්‍රමාණය", "වෙළඳපල මිල", "අපේ මිල", "මුලු මුදල"};
-            
+
             DefaultTableModel model = new DefaultTableModel(columns, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column == 2 ||column == 3 || column == 4;
+                    return column == 2 || column == 3 || column == 4;
                 }
             };
 
@@ -774,19 +777,20 @@ public class BillDashboard extends javax.swing.JPanel {
                 columnModel.getColumn(5).setPreferredWidth(120);
             }
 
-            setupDeleteAction(table );
+            setupDeleteAction(table);
 
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(table, "❌ Error loading products table: " + ex.getMessage());
         }
-        
+
     }
-    
+
     private void setupNumberFields() {
-        
+
         DecimalFormat decimalFormat = new DecimalFormat("#0.00");
         NumberFormatter formatter = new NumberFormatter(decimalFormat);
+
         formatter.setValueClass(Double.class);
         formatter.setAllowsInvalid(false);
         formatter.setMinimum(0.0);
@@ -795,7 +799,7 @@ public class BillDashboard extends javax.swing.JPanel {
         jFormattedTextField8.setFormatterFactory(new DefaultFormatterFactory(formatter));
         jFormattedTextField9.setFormatterFactory(new DefaultFormatterFactory(formatter));
     }
-    
+
     private void setupDeleteAction(JTable table) {
         try {
             table.getInputMap(JComponent.WHEN_FOCUSED).remove(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
@@ -849,6 +853,26 @@ public class BillDashboard extends javax.swing.JPanel {
                     "Setup Error",
                     JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
+        }
+    }
+
+    private void checkProduct(String barcodeInput) {
+        System.out.println(barcodeInput);
+        ProductDAO productDAO = new ProductDAO();
+
+        try {
+            List<Product> productByCode = productDAO.getProductByCode(barcodeInput);
+            for (Product p : productByCode) {
+                jTextField2.setText(p.getSiName());
+                jFormattedTextField7.requestFocus();
+                jFormattedTextField8.setValue(p.getWeladapalaMila());
+                jFormattedTextField8.requestFocus();
+                jFormattedTextField9.setValue(p.getApeMila());
+                jFormattedTextField9.requestFocus();
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(BillDashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
