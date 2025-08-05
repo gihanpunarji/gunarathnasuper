@@ -43,7 +43,7 @@ public class Database {
 
             stmt.execute("CREATE TABLE IF NOT EXISTS products ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "barcode TEXT,"
+                    + "barcode TEXT UNIQUE NOT NULL,"
                     + "si_name TEXT NOT NULL,"
                     + "en_name TEXT NOT NULL,"
                     + "weladapala_mila REAL NOT NULL,"
