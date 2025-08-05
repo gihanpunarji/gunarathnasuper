@@ -2,22 +2,17 @@ package GUI;
 
 import database.Database;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.Font;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -29,7 +24,6 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
     public CreditedCustomer() {
         initComponents();
-        setupTableEditing();
         loadCreditedCustomersData();
         loadCreditedCustomersTable();
     }
@@ -318,163 +312,25 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
     }//GEN-LAST:event_jTextField4KeyReleased
 
-    private void setupTableEditing() {
-        JTextField textField = new JTextField();
-
-        DefaultCellEditor customEditor = new DefaultCellEditor(textField) {
-            @Override
-            public boolean isCellEditable(EventObject e) {
-                // Only allow editing on double-click for column 3 (4th column)
-                if (e instanceof MouseEvent) {
-                    MouseEvent me = (MouseEvent) e;
-                    JTable table = (JTable) e.getSource();
-                    int column = table.columnAtPoint(me.getPoint());
-                    return column == 3 && me.getClickCount() >= 2;
-                }
-                return false;
-            }
-
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value,
-                    boolean isSelected, int row, int column) {
-
-                // Store original values
-                originalValue = value != null ? ((Double) value).doubleValue() : 0.0;
-                editingRow = row;
-
-                JTextField editor = (JTextField) super.getTableCellEditorComponent(
-                        table, value, isSelected, row, column);
-
-                // Add key listeners
-                editor.addKeyListener(new java.awt.event.KeyAdapter() {
-                    @Override
-                    public void keyPressed(java.awt.event.KeyEvent evt) {
-                        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                            evt.consume(); // Prevent default behavior
-                            stopCellEditing();
-                        } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                            evt.consume(); // Prevent default behavior
-                            cancelCellEditing();
-                        }
-                    }
-                });
-
-                return editor;
-            }
-
-            @Override
-            public boolean stopCellEditing() {
-                try {
-                    String newValueStr = (String) getCellEditorValue();
-                    double newValue = Double.parseDouble(newValueStr.trim());
-
-                    // Validate input
-                    if (newValue < 0) {
-                        JOptionPane.showMessageDialog(CreditedCustomer.this, "ගෙවීමට ඇති මුදල සාර්ථකව යාවත්කාලීන කරන ලදී!", "සාර්ථකයි", JOptionPane.INFORMATION_MESSAGE);
-
-                        return false;
-                    }
-
-                    // Check if value actually changed
-                    if (Math.abs(newValue - originalValue) < 0.01) {
-                        // No significant change, just stop editing
-                        return super.stopCellEditing();
-                    }
-
-                    // Show confirmation dialog
-                    int confirm = JOptionPane.showConfirmDialog(
-                            CreditedCustomer.this,
-                            String.format("ගෙවීමට ඇති මුදල %s සිට %s දක්වා වෙනස් කිරීමට අවශ්‍යද?",
-                                    decimalFormat.format(originalValue),
-                                    decimalFormat.format(newValue)),
-                            "තහවුරු කරන්න",
-                            JOptionPane.YES_NO_OPTION,
-                            JOptionPane.QUESTION_MESSAGE
-                    );
-
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        // Update database
-                        if (updateCreditedAmount(editingRow, newValue)) {
-                            return super.stopCellEditing();
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        // User cancelled
-                        cancelCellEditing();
-                        return false;
-                    }
-
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(CreditedCustomer.this, "කරුණාකර වලංගු සංඛ්‍යාවක් ඇතුළත් කරන්න!", "අසාර්ථකයි", JOptionPane.ERROR_MESSAGE);
-
-                    return false;
-                }
-            }
-        };
-
-        // Set the custom editor only for the 4th column
-        jTable3.getColumnModel().getColumn(3).setCellEditor(customEditor);
-    }
-
-    // Database operations
-    private boolean updateCreditedAmount(int row, double newAmount) {
-        try (Connection conn = Database.getInstace().getConnection()) {
-            int customerId = (Integer) jTable3.getValueAt(row, 0);
-
-            String updateQuery = "UPDATE creditors SET total_debt = ? WHERE id = ?";
-
-            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
-                pstmt.setDouble(1, newAmount);
-                pstmt.setInt(2, customerId);
-
-                int rowsAffected = pstmt.executeUpdate();
-
-                if (rowsAffected > 0) {
-                    // Update the table model
-                    DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
-                    model.setValueAt(newAmount, row, 3);
-
-                    // Refresh statistics
-                    loadCreditedCustomersData();
-
-                    JOptionPane.showMessageDialog(CreditedCustomer.this,
-                            "ගෙවීමට ඇති මුදල යාවත්කාලීන කිරීමට අසමත් විය!",
-                            "දෝෂයකි",
-                            JOptionPane.ERROR_MESSAGE);
-                    return true;
-                } else {
-                    JOptionPane.showMessageDialog(CreditedCustomer.this,
-                            "ගෙවීමට ඇති මුදල යාවත්කාලීන කිරීමට අසමත් විය!",
-                            "දෝෂයකි",
-                            JOptionPane.ERROR_MESSAGE);
-                    return false;
-                }
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.SEVERE, "Database error", ex);
-            JOptionPane.showMessageDialog(CreditedCustomer.this,
-                    "දත්ත ගබඩා දෝෂය: " + ex.getMessage(),
-                    "දෝෂයකි",
-                    JOptionPane.ERROR_MESSAGE);
-
-            return false;
-        }
-    }
-
     private void loadCreditedCustomersData() {
-        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement pstmt = conn.prepareStatement(
-                "SELECT COUNT(*) as count, COALESCE(SUM(total_debt), 0) as total FROM creditors"); ResultSet rs = pstmt.executeQuery()) {
+        try (Connection conn = Database.getInstace().getConnection()) {
+            if (conn == null) {
+                System.err.println("Database connection is null");
+                return;
+            }
 
-            if (rs.next()) {
-                int count = rs.getInt("count");
-                double totalDebt = rs.getDouble("total");
-                double averageDebt = count > 0 ? totalDebt / count : 0.0;
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    "SELECT COUNT(*) as count, COALESCE(SUM(total_debt), 0) as total FROM creditors"); ResultSet rs = pstmt.executeQuery()) {
 
-                jLabel35.setText(decimalFormat.format(totalDebt));
-                jLabel28.setText(String.valueOf(count));
-                jLabel34.setText(decimalFormat.format(averageDebt));
+                if (rs.next()) {
+                    int count = rs.getInt("count");
+                    double totalDebt = rs.getDouble("total");
+                    double averageDebt = count > 0 ? totalDebt / count : 0.0;
+
+                    jLabel35.setText(decimalFormat.format(totalDebt));
+                    jLabel28.setText(String.valueOf(count));
+                    jLabel34.setText(decimalFormat.format(averageDebt));
+                }
             }
 
         } catch (SQLException ex) {
@@ -488,27 +344,38 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
     private void loadCreditedCustomersTable() {
         try (Connection conn = Database.getInstace().getConnection()) {
+            if (conn == null) {
+                System.err.println("Database connection is null");
+                return;
+            }
+
             ensureLastCreditDateColumn(conn);
 
-            String query = """
-                SELECT c.id, c.name,
-                       COALESCE(c.last_credit_date, 'N/A') as last_credit_date,
-                       c.total_debt
-                FROM creditors c
-                ORDER BY c.total_debt DESC
-            """;
+            String query = "SELECT c.id, c.name, "
+                    + "COALESCE(c.last_credit_date, 'N/A') as last_credit_date, "
+                    + "COALESCE(c.total_debt, 0.0) as total_debt "
+                    + "FROM creditors c "
+                    + "ORDER BY c.last_credit_date DESC";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
-                DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
-                model.setRowCount(0);
+                DefaultTableModel model = new DefaultTableModel(new String[]{"අනු අංකය", "නම", "අවසාන දිනය", "මුළු ණය"}, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return column == 3;
+                    }
 
-                // Set table header styling
-                JTableHeader header = jTable3.getTableHeader();
-                if (header != null) {
-                    header.setBackground(new Color(204, 127, 84));
-                    header.setForeground(Color.WHITE);
-                }
+                    @Override
+                    public Class<?> getColumnClass(int columnIndex) {
+                        if (columnIndex == 0) {
+                            return Integer.class;
+                        }
+                        if (columnIndex == 3) {
+                            return Double.class;
+                        }
+                        return String.class;
+                    }
+                };
 
                 while (rs.next()) {
                     String lastCreditDate = rs.getString("last_credit_date");
@@ -524,6 +391,19 @@ public class CreditedCustomer extends javax.swing.JPanel {
                     };
                     model.addRow(row);
                 }
+
+                jTable3.setModel(model);
+                jTable3.getTableHeader().setReorderingAllowed(false);
+                jTable3.setFont(new Font("SansSerif", Font.PLAIN, 19));
+                addDebtEditListener();
+
+                JTableHeader header = jTable3.getTableHeader();
+                if (header != null) {
+                    header.setBackground(new Color(204, 127, 84));
+                    header.setForeground(Color.WHITE);
+                    header.setFont(new Font("SansSerif", Font.BOLD, 20));
+                }
+
             }
         } catch (SQLException ex) {
             Logger.getLogger(CreditedCustomer.class.getName()).log(Level.SEVERE, "Error loading table", ex);
@@ -534,10 +414,44 @@ public class CreditedCustomer extends javax.swing.JPanel {
         }
     }
 
+    private void addDebtEditListener() {
+        jTable3.getModel().addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 3) {
+                int row = e.getFirstRow();
+                DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+                int customerId = (int) model.getValueAt(row, 0);
+                String customerName = (String) model.getValueAt(row, 1);
+                Object value = model.getValueAt(row, 3);
+
+                if (value instanceof Number) {
+                    double newAmount = ((Number) value).doubleValue();
+                    int confirm = JOptionPane.showConfirmDialog(this,
+                            "ඔබට '" + customerName + "' හි වට්ටම් මුදල " + value + newAmount + " ලෙස යාවත්කාලීන කිරීමට අවශ්‍යද?",
+                            "තහවුරු කිරීම", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        if (updateCreditedAmount(customerId, newAmount)) {
+                            refreshData();
+                        }
+                    } else {
+                        refreshData(); // cancel = reset table value
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "වලංගු ද්‍රව්‍යම මුදලක් ඇතුළත් කරන්න!", "දෝෂයකි", JOptionPane.ERROR_MESSAGE);
+                    refreshData();
+                }
+            }
+        });
+    }
+
     private void searchCreditedCustomers() {
         String keyword = jTextField4.getText().trim();
 
         try (Connection conn = Database.getInstace().getConnection()) {
+            if (conn == null) {
+                System.err.println("Database connection is null");
+                return;
+            }
+
             String query;
             PreparedStatement pstmt;
 
@@ -546,14 +460,12 @@ public class CreditedCustomer extends javax.swing.JPanel {
                 return;
             }
 
-            query = """
-                SELECT c.id, c.name,
-                       COALESCE(c.last_credit_date, 'N/A') as last_credit_date,
-                       c.total_debt
-                FROM creditors c
-                WHERE c.id LIKE ? OR c.name LIKE ?
-                ORDER BY c.total_debt DESC
-            """;
+            query = "SELECT c.id, c.name, "
+                    + "COALESCE(c.last_credit_date, 'N/A') as last_credit_date, "
+                    + "COALESCE(c.total_debt, 0.0) as total_debt "
+                    + "FROM creditors c "
+                    + "WHERE CAST(c.id AS TEXT) LIKE ? OR c.name LIKE ? "
+                    + "ORDER BY c.total_debt DESC";
 
             pstmt = conn.prepareStatement(query);
             pstmt.setString(1, "%" + keyword + "%");
@@ -579,10 +491,10 @@ public class CreditedCustomer extends javax.swing.JPanel {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.SEVERE, "Error searching", ex);
             JOptionPane.showMessageDialog(this,
-                    "❌ Error searching credited customers: " + ex.getMessage(),
-                    "Search Error",
+                    "සොයන්නේ දී දෝෂයක් සිදු විය: " + ex.getMessage(),
+                    "සෙවුම් දෝෂය",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -594,7 +506,22 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
     private void ensureLastCreditDateColumn(Connection conn) {
         try (Statement stmt = conn.createStatement()) {
-            var rs = stmt.executeQuery("PRAGMA table_info(creditors)");
+            ResultSet tables = conn.getMetaData().getTables(null, null, "creditors", null);
+            if (!tables.next()) {
+                String createTableQuery = """
+                    CREATE TABLE IF NOT EXISTS creditors (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        total_debt REAL DEFAULT 0.0,
+                        last_credit_date TEXT DEFAULT NULL
+                    )
+                """;
+                stmt.execute(createTableQuery);
+                System.out.println("Created creditors table");
+                return;
+            }
+
+            ResultSet rs = stmt.executeQuery("PRAGMA table_info(creditors)");
             boolean hasColumn = false;
             while (rs.next()) {
                 if ("last_credit_date".equals(rs.getString("name"))) {
@@ -609,7 +536,50 @@ public class CreditedCustomer extends javax.swing.JPanel {
                 System.out.println("Added last_credit_date column and updated existing records");
             }
         } catch (SQLException ex) {
-            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.WARNING, "Could not ensure last_credit_date column", ex);
+            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.WARNING, "Could not ensure table structure", ex);
+        }
+    }
+
+    private boolean updateCreditedAmount(int customerId, double newAmount) {
+        try (Connection conn = Database.getInstace().getConnection()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this,
+                        "දත්ත ගබඩාවට සම්බන්ධ වීමට නොහැකි විය!",
+                        "දෝෂයකි",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            String updateQuery = "UPDATE creditors SET total_debt = ?, last_credit_date = datetime('now', 'localtime') WHERE id = ?";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+                pstmt.setDouble(1, newAmount);
+                pstmt.setInt(2, customerId);
+
+                int rowsAffected = pstmt.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "ගෙවීමට ඇති මුදල සාර්ථකව යාවත්කාලීන කරන ලදී!",
+                            "සාර්ථකයි",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return true;
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "ගෙවීමට ඇති මුදල යාවත්කාලීන කිරීමට අසමත් විය!",
+                            "දෝෂයකි",
+                            JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.SEVERE, "Database error", ex);
+            JOptionPane.showMessageDialog(this,
+                    "දත්ත ගබඩා දෝෂය: " + ex.getMessage(),
+                    "දෝෂයකි",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 

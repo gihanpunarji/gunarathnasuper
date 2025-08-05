@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import java.sql.ResultSet;
 
 public class AddCreditedCustomer extends javax.swing.JFrame {
 
@@ -56,6 +57,11 @@ public class AddCreditedCustomer extends javax.swing.JFrame {
         jLabel9.setText("ගෙවීමට ඇති මුදල");
 
         jTextField5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jTextField5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField5ActionPerformed(evt);
+            }
+        });
 
         jButton3.setBackground(new java.awt.Color(85, 88, 121));
         jButton3.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
@@ -131,11 +137,10 @@ public class AddCreditedCustomer extends javax.swing.JFrame {
         addCreditedCustomer();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {
-        // Add customer when Enter is pressed in debt amount field
-        addCreditedCustomer();
-
-    }
+    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+        // TODO add your handling code here:
+        jButton3.doClick();
+    }//GEN-LAST:event_jTextField5ActionPerformed
 
     private void addCreditedCustomer() {
         try {
@@ -224,31 +229,65 @@ public class AddCreditedCustomer extends javax.swing.JFrame {
     }
 
     private boolean insertCreditedCustomer(String name, double totalDebt) {
-        String sql = "INSERT INTO creditors (name, total_debt, last_credit_date) VALUES (?, ?, datetime('now', 'localtime'))";
+        String checkSql = "SELECT id, total_debt FROM creditors WHERE LOWER(name) = LOWER(?)";
+        String insertSql = "INSERT INTO creditors (name, total_debt, last_credit_date) VALUES (?, ?, datetime('now', 'localtime'))";
+        String updateSql = "UPDATE creditors SET total_debt = total_debt + ?, last_credit_date = datetime('now', 'localtime') WHERE id = ?";
 
-        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Database.getInstace().getConnection()) {
 
-            pstmt.setString(1, name);
-            pstmt.setDouble(2, totalDebt);
+            // 1️⃣ Check for existing name (case-insensitive)
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setString(1, name);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        int existingId = rs.getInt("id");
+                        double existingDebt = rs.getDouble("total_debt");
 
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+                        int choice = JOptionPane.showConfirmDialog(this,
+                                "😯 '" + name + "' නම් ගණුදෙනුකරුවකු දැනටමත් පවතී!\n"
+                                + "ඔහුගේ ප්‍රතිශේෂය: Rs. " + existingDebt + "\n\n"
+                                + "ඔහුගේ මුදල් ප්‍රතිශේෂයට අලුත් මුදල එකතු කරන්නද?",
+                                "Existing Customer Found",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE);
+
+                        if (choice == JOptionPane.YES_OPTION) {
+                            // 2️⃣ Update the existing total debt
+                            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                                updateStmt.setDouble(1, totalDebt);
+                                updateStmt.setInt(2, existingId);
+                                int updated = updateStmt.executeUpdate();
+                                return updated > 0;
+                            }
+                        } else {
+                            // 3️⃣ User chose to retype: show message + clear + focus
+                            JOptionPane.showMessageDialog(this,
+                                    "කරුණාකර වෙනත් නමක් ඇතුළත් කරන්න!",
+                                    "Enter a New Name",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            jTextField2.setText(""); // Replace with your actual field name
+                            jTextField2.requestFocus();
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // 4️⃣ If name doesn't exist: insert new customer
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setString(1, name);
+                insertStmt.setDouble(2, totalDebt);
+                int rowsAffected = insertStmt.executeUpdate();
+                return rowsAffected > 0;
+            }
 
         } catch (SQLException ex) {
             Logger.getLogger(AddCreditedCustomer.class.getName()).log(Level.SEVERE, null, ex);
 
-            // Check for specific error types
-            if (ex.getMessage().contains("UNIQUE constraint failed")) {
-                JOptionPane.showMessageDialog(this,
-                        "⚠️ මෙම නමින් ගණුදෙනුකරුවකු දැනටමත් පවතී!",
-                        "Duplicate Entry",
-                        JOptionPane.WARNING_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "❌ දත්ත ගබඩාව දෝෂය: " + ex.getMessage(),
-                        "Database Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+            JOptionPane.showMessageDialog(this,
+                    "❌ දත්ත ගබඩාව දෝෂය: " + ex.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
