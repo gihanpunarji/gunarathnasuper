@@ -67,7 +67,7 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
         jLabel35.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel35.setForeground(new java.awt.Color(0, 153, 0));
-        jLabel35.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel35.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel35.setText("0.00");
 
         jLabel36.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
@@ -154,7 +154,7 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
         jLabel34.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel34.setForeground(new java.awt.Color(255, 153, 0));
-        jLabel34.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel34.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel34.setText("0.00");
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/org line.png"))); // NOI18N

@@ -399,7 +399,7 @@ public class ReportPage extends javax.swing.JPanel {
 
         jLabel26.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(255, 51, 0));
-        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel26.setText("0.00");
 
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/red line.png"))); // NOI18N
@@ -501,7 +501,7 @@ public class ReportPage extends javax.swing.JPanel {
 
         jLabel30.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel30.setForeground(new java.awt.Color(0, 153, 0));
-        jLabel30.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel30.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel30.setText("0.00");
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/hand.png"))); // NOI18N
