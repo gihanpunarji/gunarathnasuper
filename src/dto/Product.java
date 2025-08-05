@@ -5,6 +5,7 @@ package dto;
  * @author gihanpunarji
  */
 public class Product {
+    private int id;
     private String barcode;
     private String siName;
     private String enName;
@@ -57,6 +58,14 @@ public class Product {
 
     public void setApeMila(double apeMila) {
         this.apeMila = apeMila;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
     
 }
