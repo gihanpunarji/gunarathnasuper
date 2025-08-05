@@ -1,72 +1,238 @@
 package GUI;
 
+import database.Database;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.sqlite.SQLiteException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.jfree.chart.axis.CategoryAxis;
+import java.sql.Statement;
 
 public class ReportPage extends javax.swing.JPanel {
 
     public ReportPage() {
         initComponents();
+
         showBarChartSinhala();
         showPieChartSinhala();
 
     }
 
+    private void insertMockBillDataIfEmpty() {
+        try (
+                Connection conn = Database.getInstace().getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM bills")) {
+
+            if (rs.next() && rs.getInt(1) == 0) {
+                System.out.println("Inserting mock data...");
+
+                // Insert a sample creditor if not exists
+                stmt.execute("INSERT INTO creditors (name, total_debt, last_credit_date) "
+                        + "VALUES ('ගිහාන්', 0, datetime('now', 'localtime'))");
+
+                // Add 8 months of sales
+                String[] months = {"-01-", "-02-", "-03-", "-04-", "-05-", "-06-", "-07-", "-08-"};
+                for (int i = 0; i < months.length; i++) {
+                    String date = "'2025" + months[i] + "15 10:00:00'";
+                    double amount = (i + 1) * 10000;
+                    stmt.execute("INSERT INTO bills (datetime, total_amount, paid_amount, creditor_id) "
+                            + "VALUES (" + date + ", " + amount + ", " + amount + ", 1)");
+                }
+                System.out.println("✅ Mock sales data inserted.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to insert mock data: " + e.getMessage());
+        }
+    }
+
     private void showBarChartSinhala() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        insertMockBillDataIfEmpty();
 
-        dataset.addValue(30000, "වෙත", "ජනවාරි");
-        dataset.addValue(32000, "වෙත", "පෙබරවාරි");
-        dataset.addValue(28000, "වෙත", "මාර්තු");
-        dataset.addValue(35000, "වෙත", "අප්‍රේල්");
-        dataset.addValue(40000, "වෙත", "මැයි");
-        dataset.addValue(45000, "වෙත", "ජූනි");
-        dataset.addValue(48000, "වෙත", "ජූලි");
-        dataset.addValue(42000, "වෙත", "අගෝස්තු");
-        dataset.addValue(41000, "වෙත", "සැප්තැම්බර්");
-        dataset.addValue(43000, "වෙත", "ඔක්තෝබර්");
-        dataset.addValue(39000, "වෙත", "නොවැම්බර්");
-        dataset.addValue(37000, "වෙත", "දෙසැම්බර්");
+        try {
+            // Get data from database
+            Map<Integer, Double> monthlyData = getMonthlySalesData();
 
-        JFreeChart chart = ChartFactory.createBarChart(
-                "මාසික විකුණුම් වාර්තාව",
-                "මාසය",
-                "රුපියල්",
-                dataset
-        );
+            // Create dataset with real data
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            String[] sinhalaMonths = {
+                "ජනවාරි", "පෙබරවාරි", "මාර්තු", "අප්‍රේල්", "මැයි", "ජූනි",
+                "ජූලි", "අගෝස්තු", "සැප්තැම්බර්", "ඔක්තෝබර්", "නොවැම්බර්", "දෙසැම්බර්"
+            };
 
-        Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14); // or use Nirmala UI if needed
-        chart.getTitle().setFont(sinhalaFont);
-        chart.getCategoryPlot().getDomainAxis().setLabelFont(sinhalaFont);
-        chart.getCategoryPlot().getRangeAxis().setLabelFont(sinhalaFont);
-        chart.getCategoryPlot().getDomainAxis().setTickLabelFont(sinhalaFont);
-        chart.getCategoryPlot().getRangeAxis().setTickLabelFont(sinhalaFont);
-        chart.getLegend().setItemFont(sinhalaFont);
+            // Add data for all 12 months (fill with 0 if no data)
+            for (int i = 1; i <= 12; i++) {
+                double sales = monthlyData.getOrDefault(i, 0.0);
+                dataset.addValue(sales, "විකුණුම්", sinhalaMonths[i - 1]);
+            }
 
-        // Chart UI settings
-        chart.setBackgroundPaint(Color.WHITE);
-        chart.getPlot().setBackgroundPaint(Color.WHITE);
+            // Create chart
+            JFreeChart chart = ChartFactory.createBarChart(
+                    "මාසික විකුණුම් වාර්තාව",
+                    "මාසය",
+                    "රුපියල් (Rs.)",
+                    dataset
+            );
 
-        // Create chart panel
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(500, 300));
+            // Enhanced styling
+            Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14);
 
-        // Add chart panel to 'barChart' JPanel
-        barChart.setLayout(new BorderLayout());
-        barChart.removeAll();
-        barChart.add(chartPanel, BorderLayout.CENTER);
-        barChart.revalidate();
-        barChart.repaint();
+            // Chart background and border
+            chart.setBackgroundPaint(new Color(248, 249, 250));
+            chart.setBorderVisible(false);
+
+            // Title styling
+            chart.getTitle().setFont(new Font("Iskoola Pota", Font.BOLD, 18));
+            chart.getTitle().setPaint(new Color(33, 37, 41));
+
+            // Get plot for detailed styling
+            CategoryPlot plot = chart.getCategoryPlot();
+
+            // Plot background and grid
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setDomainGridlinesVisible(false);
+            plot.setRangeGridlinesVisible(true);
+            plot.setRangeGridlinePaint(new Color(230, 230, 230));
+            plot.setOutlineVisible(false);
+
+            // Bar renderer with beautiful colors
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+
+            // Gradient color for bars
+            GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(54, 162, 235), // Blue
+                    0, 300, new Color(75, 192, 192) // Teal
+            );
+            renderer.setSeriesPaint(0, gradient);
+            renderer.setBarPainter(new org.jfree.chart.renderer.category.StandardBarPainter());
+
+            // Bar spacing and width
+            renderer.setItemMargin(0.1);
+            renderer.setMaximumBarWidth(0.08);
+
+            // Add value labels on bars
+            renderer.setBaseItemLabelsVisible(true);
+            renderer.setBaseItemLabelFont(new Font("Arial", Font.BOLD, 10));
+            renderer.setBaseItemLabelPaint(Color.BLACK);
+
+            // Custom label formatting for currency
+            renderer.setBaseItemLabelGenerator(
+                    new org.jfree.chart.labels.StandardCategoryItemLabelGenerator() {
+                @Override
+                public String generateLabel(org.jfree.data.category.CategoryDataset dataset, int row, int column) {
+                    Number value = dataset.getValue(row, column);
+                    if (value != null && value.doubleValue() > 0) {
+                        java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,##0");
+                        return "Rs. " + formatter.format(value);
+                    }
+                    return "";
+                }
+            }
+            );
+
+            // X-axis styling
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            domainAxis.setLabelFont(new Font("Iskoola Pota", Font.BOLD, 14));
+            domainAxis.setTickLabelFont(sinhalaFont);
+            domainAxis.setLabelPaint(new Color(33, 37, 41));
+            domainAxis.setAxisLineVisible(false);
+            domainAxis.setTickMarksVisible(false);
+            domainAxis.setCategoryLabelPositions(
+                    org.jfree.chart.axis.CategoryLabelPositions.UP_45
+            );
+
+            // Y-axis styling
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setLabelFont(new Font("Iskoola Pota", Font.BOLD, 14));
+            rangeAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 12));
+            rangeAxis.setLabelPaint(new Color(33, 37, 41));
+            rangeAxis.setAxisLineVisible(false);
+            rangeAxis.setTickMarksVisible(false);
+
+            // Format Y-axis as currency
+            java.text.DecimalFormat currencyFormat = new java.text.DecimalFormat("#,##0");
+            rangeAxis.setNumberFormatOverride(currencyFormat);
+            rangeAxis.setAutoRangeIncludesZero(true);
+
+            // Legend styling
+            if (chart.getLegend() != null) {
+                chart.getLegend().setItemFont(sinhalaFont);
+                chart.getLegend().setBackgroundPaint(Color.WHITE);
+            }
+
+            // Create chart panel with enhanced settings
+            ChartPanel chartPanel = new ChartPanel(chart);
+            chartPanel.setPreferredSize(new Dimension(800, 400));
+            chartPanel.setBackground(Color.WHITE);
+            chartPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            // Add chart panel to 'barChart' JPanel
+            barChart.setLayout(new BorderLayout());
+            barChart.removeAll();
+            barChart.add(chartPanel, BorderLayout.CENTER);
+            barChart.revalidate();
+            barChart.repaint();
+
+        } catch (SQLException e) {
+            // Show error message in Sinhala
+            JLabel errorLabel = new JLabel("දත්ත ගබඩාවෙන් දත්ත ලබා ගැනීමේදී දෝෂයක් සිදුවිය", JLabel.CENTER);
+            errorLabel.setFont(new Font("Iskoola Pota", Font.PLAIN, 14));
+            errorLabel.setForeground(Color.RED);
+
+            barChart.setLayout(new BorderLayout());
+            barChart.removeAll();
+            barChart.add(errorLabel, BorderLayout.CENTER);
+            barChart.revalidate();
+            barChart.repaint();
+
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+
+// Helper method to get monthly sales data from your database
+    private Map<Integer, Double> getMonthlySalesData() throws SQLException {
+        Map<Integer, Double> monthlyData = new HashMap<>();
+
+        String query = """
+        SELECT
+            CAST(strftime('%m', datetime) AS INTEGER) as month,
+            SUM(total_amount) as total_sales
+        FROM bills
+        WHERE datetime >= date('now', 'start of year')
+        GROUP BY CAST(strftime('%m', datetime) AS INTEGER)
+        ORDER BY month
+    """;
+
+        Database db = Database.getInstace(); // Using your existing Database class
+
+        try (Connection conn = db.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                double totalSales = rs.getDouble("total_sales");
+                monthlyData.put(month, totalSales);
+            }
+        }
+
+        return monthlyData;
     }
 
     private void showPieChartSinhala() {
@@ -233,7 +399,7 @@ public class ReportPage extends javax.swing.JPanel {
 
         jLabel26.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(255, 51, 0));
-        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel26.setText("0.00");
 
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/red line.png"))); // NOI18N
@@ -335,7 +501,7 @@ public class ReportPage extends javax.swing.JPanel {
 
         jLabel30.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel30.setForeground(new java.awt.Color(0, 153, 0));
-        jLabel30.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel30.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel30.setText("0.00");
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/hand.png"))); // NOI18N
@@ -654,7 +820,6 @@ public class ReportPage extends javax.swing.JPanel {
 
         add(jPanel2, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel barChart;
