@@ -9,10 +9,7 @@ import dto.Product;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -284,13 +281,17 @@ public class ProductManagemnt extends javax.swing.JPanel {
                 throw new IllegalArgumentException("Table cannot be null");
             }
 
-            String columns[] = {"Bar Code", "Product Name (SI)", "Product Name (EN)", "වෙළඳපල මිල", "අපේ මිල"};
+            String columns[] = {"Id", "Bar Code", "Product Name (SI)", "Product Name (EN)", "වෙළඳපල මිල", "අපේ මිල"};
+
+            if (table.getColumnModel().getColumnCount() > 0) {
+                table.getColumnModel().getColumn(0).setMaxWidth(100);
+            }
 
             DefaultTableModel model = new DefaultTableModel(columns, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     // Only the "අපේ මිල" column (index 4) is editable
-                    return column == 4;
+                    return column == 5;
                 }
             };
 
@@ -315,7 +316,9 @@ public class ProductManagemnt extends javax.swing.JPanel {
             if (productsList != null) {
                 for (Product p : productsList) {
                     if (p != null) { // Check for null products
+                        System.out.println(p.getId() + p.getApeMila());
                         Object[] row = {
+                            p.getId(),
                             p.getBarcode() != null ? p.getBarcode() : "",
                             p.getSiName() != null ? p.getSiName() : "",
                             p.getEnName() != null ? p.getEnName() : "",
@@ -336,18 +339,18 @@ public class ProductManagemnt extends javax.swing.JPanel {
 
                         // Only handle updates to the price column (column 4)
                         if (col == 4 && row >= 0 && row < table.getRowCount()) {
-                            Object barcodeObj = table.getValueAt(row, 0);
+                            Object idObj = table.getValueAt(row, 0);
                             Object newValueObj = table.getValueAt(row, col);
 
-                            if (barcodeObj == null || newValueObj == null) {
+                            if (idObj == null || newValueObj == null) {
                                 JOptionPane.showMessageDialog(table, "⚠️ Invalid data detected!");
                                 return;
                             }
 
-                            String barcode = barcodeObj.toString().trim();
+                            String id = idObj.toString().trim();
 
-                            if (barcode.isEmpty()) {
-                                JOptionPane.showMessageDialog(table, "⚠️ Barcode cannot be empty!");
+                            if (id.isEmpty()) {
+                                JOptionPane.showMessageDialog(table, "⚠️ Id cannot be empty!");
                                 return;
                             }
 
@@ -360,10 +363,10 @@ public class ProductManagemnt extends javax.swing.JPanel {
                                     return;
                                 }
 
-                                boolean success = dao.updateApeMila(barcode, newPrice);
+                                boolean success = dao.updateApeMila(id, newPrice);
 
                                 if (success) {
-                                    JOptionPane.showMessageDialog(table, "✅ Price updated for " + barcode);
+                                    JOptionPane.showMessageDialog(table, "✅ Price updated for " + id);
                                 } else {
                                     JOptionPane.showMessageDialog(table, "❌ Failed to update database");
                                     // Reload table to revert changes
@@ -429,28 +432,27 @@ public class ProductManagemnt extends javax.swing.JPanel {
                             return;
                         }
 
-                        Object barcodeObj = table.getValueAt(selectedRow, 0);
-                        if (barcodeObj == null) {
-                            JOptionPane.showMessageDialog(table, "⚠️ Cannot delete product: Invalid barcode.");
+                        Object idObj = table.getValueAt(selectedRow, 0);
+                        if (idObj == null) {
+                            JOptionPane.showMessageDialog(table, "⚠️ Cannot delete product: Invalid Id.");
                             return;
                         }
 
-                        String barcode = barcodeObj.toString().trim();
-                        if (barcode.isEmpty()) {
-                            JOptionPane.showMessageDialog(table, "⚠️ Cannot delete product: Empty barcode.");
+                        String id = idObj.toString().trim();
+                        if (id.isEmpty()) {
+                            JOptionPane.showMessageDialog(table, "⚠️ Cannot delete product: Empty Id.");
                             return;
                         }
 
-                        int confirm = JOptionPane.showConfirmDialog(
-                                table,
-                                "Are you sure you want to delete product with barcode " + barcode + "?",
+                        int confirm = JOptionPane.showConfirmDialog(table,
+                                "Are you sure you want to delete product with id " + id + "?",
                                 "Confirm Delete",
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.WARNING_MESSAGE
                         );
 
                         if (confirm == JOptionPane.YES_OPTION) {
-                            boolean success = dao.deleteProduct(barcode);
+                            boolean success = dao.deleteProduct(id);
 
                             if (success) {
                                 JOptionPane.showMessageDialog(table, "✅ Product deleted successfully!");
