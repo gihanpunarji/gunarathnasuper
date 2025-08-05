@@ -62,12 +62,11 @@ public class ProductDAO {
 
         }
     }
-    
 
     public List<Product> getAllProducts() throws SQLException {
 
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM products ORDER BY id DESC";
+        String sql = "SELECT * FROM products ORDER BY id ASC";
 
         Connection conn = Database.getInstace().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
@@ -138,12 +137,24 @@ public class ProductDAO {
         return false;
     }
 
-    public boolean updateApeMila(String id, double newPrice) {
+    public boolean updateApeMila(int id, double newPrice) {
         String sql = "UPDATE products SET ape_mila = ? WHERE id = ?";
         try (Connection conn = Database.getInstace().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDouble(1, newPrice);
-            pstmt.setString(2, id);
+            pstmt.setInt(2, id);
             return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Update Product Error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateWeladapalaMila(int id, double price) {
+        String sql = "UPDATE products SET weladapala_mila = ? WHERE id = ?";
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, price);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("❌ Update Product Error: " + e.getMessage());
             return false;
