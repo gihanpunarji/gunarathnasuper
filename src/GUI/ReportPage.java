@@ -10,31 +10,92 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DefaultPieDataset;
-import org.sqlite.SQLiteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.jfree.chart.axis.CategoryAxis;
 import java.sql.Statement;
+import javax.swing.table.DefaultTableModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.data.general.DefaultPieDataset;
 
 public class ReportPage extends javax.swing.JPanel {
 
     public ReportPage() {
         initComponents();
-
+        loadReportPageData();
         showBarChartSinhala();
         showPieChartSinhala();
+        loadCashSalesToday();
+        loadCreditSalesToday();
+        loadTotalBillCountToday();
+        loadTotalSalesToday();
+        loadPopularProductsTable();
 
+    }
+
+    private void loadReportPageData() {
+        String today = java.time.LocalDate.now().toString();
+        Connection conn = null;
+
+        try {
+            conn = Database.getInstace().getConnection();
+
+            String totalSalesQuery = "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ?";
+            String billCountQuery = "SELECT COUNT(*) FROM bills WHERE datetime LIKE ?";
+            String productsSoldQuery = "SELECT IFNULL(SUM(quantity), 0) FROM bill_items WHERE bill_id IN (SELECT id FROM bills WHERE datetime LIKE ?)";
+            String averageSalesQuery = "SELECT IFNULL(AVG(total_amount), 0) FROM bills WHERE datetime LIKE ?";
+
+            try (
+                    PreparedStatement totalSalesStmt = conn.prepareStatement(totalSalesQuery); PreparedStatement billCountStmt = conn.prepareStatement(billCountQuery); PreparedStatement productsSoldStmt = conn.prepareStatement(productsSoldQuery); PreparedStatement averageSalesStmt = conn.prepareStatement(averageSalesQuery)) {
+                String likeDate = today + "%";
+
+                totalSalesStmt.setString(1, likeDate);
+                billCountStmt.setString(1, likeDate);
+                productsSoldStmt.setString(1, likeDate);
+                averageSalesStmt.setString(1, likeDate);
+
+                ResultSet rs1 = totalSalesStmt.executeQuery();
+                if (rs1.next()) {
+                    jLabel30.setText(String.valueOf(rs1.getDouble(1)));
+                }
+
+                ResultSet rs2 = billCountStmt.executeQuery();
+                if (rs2.next()) {
+                    jLabel34.setText(String.valueOf(rs2.getInt(1)));
+                }
+
+                ResultSet rs3 = productsSoldStmt.executeQuery();
+                if (rs3.next()) {
+                    jLabel31.setText(String.valueOf(rs3.getInt(1)));
+                }
+
+                ResultSet rs4 = averageSalesStmt.executeQuery();
+                if (rs4.next()) {
+                    jLabel26.setText(String.valueOf(rs4.getDouble(1)));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void insertMockBillDataIfEmpty() {
@@ -207,6 +268,56 @@ public class ReportPage extends javax.swing.JPanel {
         }
     }
 
+    private void showPieChartSinhala() {
+        // 1. Create dataset manually
+        DefaultPieDataset pieDataset = new DefaultPieDataset();
+        pieDataset.setValue("බත්", 120);       // Rice
+        pieDataset.setValue("පාන්", 80);       // Bread
+        pieDataset.setValue("කිරි", 60);       // Milk
+        pieDataset.setValue("බිස්කට්", 40);    // Biscuits
+        pieDataset.setValue("චොකලට්", 30);     // Chocolate
+
+        // 2. Create Pie Chart
+        JFreeChart pieChart = ChartFactory.createPieChart(
+                "විකුණුම් වාර්තාව", // Chart Title in Sinhala
+                pieDataset,
+                true, // include legend
+                true,
+                false
+        );
+
+        // 3. Set Sinhala-compatible font
+        Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14);
+        pieChart.getTitle().setFont(new Font("Iskoola Pota", Font.BOLD, 18));
+        pieChart.getLegend().setItemFont(sinhalaFont);
+        pieChart.setBackgroundPaint(null);
+        pieChart.setBorderVisible(false);
+
+        PiePlot plot = (PiePlot) pieChart.getPlot();
+        plot.setLabelFont(sinhalaFont);
+        plot.setSimpleLabels(true);
+        plot.setCircular(true);
+        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1}"));
+        plot.setBackgroundPaint(null);     // Transparent plot background
+        plot.setOutlineVisible(false);
+
+        ChartPanel chartPanel = new ChartPanel(pieChart);
+        chartPanel.setPreferredSize(new Dimension(500, 400));
+        chartPanel.setMouseWheelEnabled(true);
+        chartPanel.setBackground(null);     // Transparent ChartPanel background
+        chartPanel.setOpaque(false);        // Makes the panel non-opaque (transparent)
+        chartPanel.setBorder(null);
+
+        // Clear previous content in pieChartPanel
+        piechart.removeAll();
+        piechart.setLayout(new BorderLayout());
+        piechart.add(chartPanel, BorderLayout.CENTER);
+
+        // Refresh panel
+        piechart.revalidate();
+        piechart.repaint();
+    }
+
 // Helper method to get monthly sales data from your database
     private Map<Integer, Double> getMonthlySalesData() throws SQLException {
         Map<Integer, Double> monthlyData = new HashMap<>();
@@ -235,49 +346,91 @@ public class ReportPage extends javax.swing.JPanel {
         return monthlyData;
     }
 
-    private void showPieChartSinhala() {
-        // Sample dataset
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("ආදායම", 40);     // Income
-        dataset.setValue("වැය", 25);       // Expenses
-        dataset.setValue("ඉතිරිකිරීම්", 20); // Savings
-        dataset.setValue("වෙනත්", 15);     // Others
+    private void loadCashSalesToday() {
+        String today = java.time.LocalDate.now().toString();
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ? AND creditor_id IS NULL")) {
+            stmt.setString(1, today + "%");
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                double total = rs.getDouble(1);
+                jLabel37.setText(String.valueOf(total));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-        // Create Pie Chart
-        JFreeChart chart = ChartFactory.createPieChart(
-                "මූල්‍ය බෙදාහැරීම", // Chart Title in Sinhala
-                dataset,
-                true, true, false
-        );
+    private void loadCreditSalesToday() {
+        String today = java.time.LocalDate.now().toString();
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ? AND creditor_id IS NOT NULL")) {
+            stmt.setString(1, today + "%");
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                double total = rs.getDouble(1);
+                jLabel37.setText(String.valueOf(total));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-        // Set Sinhala font
-        Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14);
-        chart.getTitle().setFont(sinhalaFont);
-        chart.getLegend().setItemFont(sinhalaFont);
+    private void loadTotalBillCountToday() {
+        String today = java.time.LocalDate.now().toString();
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT COUNT(*) FROM bills WHERE datetime LIKE ?")) {
+            stmt.setString(1, today + "%");
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                jLabel36.setText(String.valueOf(count));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-        // Background color
-        chart.setBackgroundPaint(Color.WHITE);
-        chart.getPlot().setBackgroundPaint(Color.WHITE);
+    private void loadTotalSalesToday() {
+        String today = java.time.LocalDate.now().toString();
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ?")) {
+            stmt.setString(1, today + "%");
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                double total = rs.getDouble(1);
+                jLabel39.setText(String.valueOf(total));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-        // Set custom colors
-        PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setLabelFont(sinhalaFont);
+    private void loadPopularProductsTable() {
+        String today = java.time.LocalDate.now().toString();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // clear existing rows
 
-        plot.setSectionPaint("ආදායම", new Color(247, 207, 216));     // #F7CFD8
-        plot.setSectionPaint("වැය", new Color(244, 248, 211));       // #F4F8D3
-        plot.setSectionPaint("ඉතිරිකිරීම්", new Color(166, 214, 214)); // #A6D6D6
-        plot.setSectionPaint("වෙනත්", new Color(142, 125, 190));     // #8E7DBE
+        String sql = """
+        SELECT product_name, SUM(quantity) as qty_sold
+        FROM bill_items
+        WHERE bill_id IN (SELECT id FROM bills WHERE datetime LIKE ?)
+        GROUP BY product_name
+        ORDER BY qty_sold DESC
+        LIMIT 10
+        """;
 
-        // Create Chart Panel
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(500, 300));
-
-        // Add to JPanel (make sure pieChartPanel exists)
-        piechart.setLayout(new BorderLayout());
-        piechart.removeAll();
-        piechart.add(chartPanel, BorderLayout.CENTER);
-        piechart.revalidate();
-        piechart.repaint();
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, today + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String name = rs.getString("product_name");
+                int qty = rs.getInt("qty_sold");
+                model.addRow(new Object[]{name, qty});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -630,7 +783,7 @@ public class ReportPage extends javax.swing.JPanel {
         jLabel32.setFont(new java.awt.Font("Iskoola Pota", 0, 20)); // NOI18N
         jLabel32.setForeground(new java.awt.Color(0, 0, 0));
         jLabel32.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel32.setText("0.00");
+        jLabel32.setText("30.00");
 
         jLabel35.setFont(new java.awt.Font("Iskoola Pota", 0, 20)); // NOI18N
         jLabel35.setForeground(new java.awt.Color(0, 0, 0));

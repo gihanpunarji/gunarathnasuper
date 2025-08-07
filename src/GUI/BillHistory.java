@@ -1,15 +1,161 @@
-
 package GUI;
 
-/**
- *
- * @author Sunet
- */
+import database.Database;
+import java.awt.Color;
+import java.awt.Font;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import com.toedter.calendar.JDateChooser;
+
 public class BillHistory extends javax.swing.JPanel {
 
- 
     public BillHistory() {
         initComponents();
+//        loadBillStats();
+        jComboBox1.addItem("සියළුම");
+        jComboBox1.addItem("අද දින");
+        jComboBox1.addItem("මෙම සතිය තුළ");
+        jComboBox1.addItem("මෙමස");
+
+    }
+
+    private void loadBillStats() {
+        try (Connection conn = Database.getInstace().getConnection()) {
+            if (conn == null) {
+                System.err.println("Database connection is null");
+                return;
+            }
+
+            String sql = "SELECT COUNT(*) AS total_bills, "
+                    + "COALESCE(SUM(CASE WHEN payment_type = 'cash' THEN total_amount ELSE 0 END), 0) AS cash_sales, "
+                    + "COALESCE(SUM(CASE WHEN payment_type = 'credit' THEN total_amount ELSE 0 END), 0) AS credit_sales, "
+                    + "COALESCE(SUM(total_amount), 0) AS total_income "
+                    + "FROM bills";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    jLabel31.setText(String.valueOf(rs.getInt("total_bills")));
+                    jLabel32.setText(String.valueOf(rs.getDouble("cash_sales")));
+                    jLabel26.setText(String.valueOf(rs.getDouble("credit_sales")));
+                    jLabel30.setText(String.valueOf(rs.getDouble("total_income")));
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(BillHistory.class.getName()).log(Level.SEVERE, "Error loading bill stats", ex);
+            JOptionPane.showMessageDialog(this, "දත්ත පූරණය කිරීමේ දෝෂය: " + ex.getMessage(), "දෝෂයකි", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadBillData() {
+        try (Connection con = Database.getInstace().getConnection()) {
+            String searchText = jTextField2.getText().trim();
+            String filterOption = jComboBox1.getSelectedItem().toString();
+            Date fromDate = jDateChooser1.getDate();
+            Date toDate = jDateChooser2.getDate();
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0); // clear table
+
+            StringBuilder sql = new StringBuilder(
+                    "SELECT bills.id, bills.datetime, bills.total_amount, bills.paid_amount, "
+                    + "creditors.name AS customer_name "
+                    + "FROM bills "
+                    + "LEFT JOIN creditors ON bills.creditor_id = creditors.id "
+                    + "WHERE 1=1 "
+            );
+
+            List<Object> params = new ArrayList<>();
+
+            // Search filter
+            if (!searchText.isEmpty()) {
+                sql.append("AND (bills.id LIKE ? OR creditors.name LIKE ?) ");
+                params.add("%" + searchText + "%");
+                params.add("%" + searchText + "%");
+            }
+
+            // Date range filter (only apply if both dates are selected)
+            if (fromDate != null && toDate != null) {
+                sql.append("AND DATE(bills.datetime) BETWEEN ? AND ? ");
+                params.add(new java.sql.Date(fromDate.getTime()));
+                params.add(new java.sql.Date(toDate.getTime()));
+            } else if (fromDate == null && toDate != null) {
+                JOptionPane.showMessageDialog(null, "Please select 'From' date.");
+                return;
+            }
+
+            // Sort filter (today, week, etc.)
+            switch (filterOption) {
+                case "Today":
+                    sql.append("AND DATE(bills.datetime) = DATE('now', 'localtime') ");
+                    break;
+                case "This Week":
+                    sql.append("AND bills.datetime >= datetime('now', 'start of day', 'weekday 0', '-7 days') ");
+                    break;
+                case "This Month":
+                    sql.append("AND strftime('%Y-%m', bills.datetime) = strftime('%Y-%m', 'now') ");
+                    break;
+            }
+
+            sql.append("ORDER BY bills.datetime DESC");
+
+            try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
+                for (int i = 0; i < params.size(); i++) {
+                    ps.setObject(i + 1, params.get(i));
+                }
+
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    int billId = rs.getInt("id");
+                    String datetime = rs.getString("datetime");
+                    double total = rs.getDouble("total_amount");
+                    double paid = rs.getDouble("paid_amount");
+                    String name = rs.getString("customer_name");
+
+                    double balance = total - paid;
+
+                    Object[] row = new Object[5];
+                    row[0] = billId;
+                    row[1] = datetime;
+                    row[2] = name != null ? name : ""; // show name only if credit
+                    row[3] = String.format("%.2f", total);
+
+                    if (balance > 0) {
+                        // Credit bill → show red with minus
+                        row[4] = "<html><font color='red'>-" + String.format("%.2f", balance) + "</font></html>";
+                    } else {
+                        row[4] = "0.00";
+                    }
+
+                    model.addRow(row);
+                }
+
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error loading bills: " + ex.getMessage());
+        }
+    }
+
+    private void resetFilters() {
+        jTextField2.setText("");
+        jComboBox1.setSelectedItem("සියළුම");
+        jDateChooser1.setDate(null);
+        jDateChooser2.setDate(null);
+        loadBillData();
     }
 
     @SuppressWarnings("unchecked")
@@ -44,12 +190,13 @@ public class BillHistory extends javax.swing.JPanel {
         jLabel7 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
         jLabel10 = new javax.swing.JLabel();
-        dateChooserCombo1 = new datechooser.beans.DateChooserCombo();
         jLabel22 = new javax.swing.JLabel();
-        dateChooserCombo2 = new datechooser.beans.DateChooserCombo();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        jLabel23 = new javax.swing.JLabel();
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
         jPanel9 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -316,7 +463,6 @@ public class BillHistory extends javax.swing.JPanel {
         jLabel7.setText("Sort By :");
 
         jComboBox1.setFont(new java.awt.Font("Iskoola Pota", 0, 14)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "සියළුම" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
@@ -350,6 +496,13 @@ public class BillHistory extends javax.swing.JPanel {
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/filter.png"))); // NOI18N
         jLabel11.setText("Filter By Date");
 
+        jDateChooser1.setPreferredSize(new java.awt.Dimension(88, 25));
+
+        jLabel23.setFont(new java.awt.Font("Iskoola Pota", 0, 14)); // NOI18N
+        jLabel23.setText("from");
+
+        jDateChooser2.setPreferredSize(new java.awt.Dimension(88, 25));
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -371,55 +524,47 @@ public class BillHistory extends javax.swing.JPanel {
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(52, 52, 52)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(70, 70, 70)
-                        .addComponent(dateChooserCombo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel22)
+                        .addComponent(jLabel23)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(dateChooserCombo2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(11, 11, 11)
-                        .addComponent(jButton4)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel22)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(52, 52, 52)
-                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel4Layout.createSequentialGroup()
-                                        .addGap(19, 19, 19)
-                                        .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(6, 6, 6))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(dateChooserCombo1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(dateChooserCombo2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel10))
-                                .addGap(11, 11, 11)
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel10))
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
 
@@ -504,26 +649,26 @@ public class BillHistory extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-       
+        resetFilters();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-      
+
     }//GEN-LAST:event_jButton5ActionPerformed
 
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private datechooser.beans.DateChooserCombo dateChooserCombo1;
-    private datechooser.beans.DateChooserCombo dateChooserCombo2;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JComboBox<String> jComboBox1;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel29;
