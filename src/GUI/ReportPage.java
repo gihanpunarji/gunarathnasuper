@@ -30,17 +30,27 @@ import org.jfree.data.general.DefaultPieDataset;
 
 public class ReportPage extends javax.swing.JPanel {
 
+    Color[] lightColors = new Color[]{
+        new Color(255, 179, 186), // Light pink
+        new Color(255, 223, 186), // Light orange
+        new Color(255, 255, 186), // Light yellow
+        new Color(186, 255, 201), // Light green
+        new Color(186, 225, 255), // Light blue
+        new Color(204, 204, 255), // Light purple
+        new Color(255, 204, 229) // Light magenta
+    };
+
     public ReportPage() {
         initComponents();
         loadReportPageData();
         showBarChartSinhala();
         showPieChartSinhala();
         loadCashSalesToday();
-        loadCreditSalesToday();
-        loadTotalBillCountToday();
-        loadTotalSalesToday();
-        loadPopularProductsTable();
-
+        loadCashSalesLast30Days();
+        loadCreditSalesLast30Days();
+        loadTransactionCountLast30Days();
+        loadTotalSalesLast30Days();
+        loadPopularProductsLast30Days();
     }
 
     private void loadReportPageData() {
@@ -52,7 +62,11 @@ public class ReportPage extends javax.swing.JPanel {
 
             String totalSalesQuery = "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ?";
             String billCountQuery = "SELECT COUNT(*) FROM bills WHERE datetime LIKE ?";
-            String productsSoldQuery = "SELECT IFNULL(SUM(quantity), 0) FROM bill_items WHERE bill_id IN (SELECT id FROM bills WHERE datetime LIKE ?)";
+            String productsSoldQuery
+                    = "SELECT IFNULL(SUM(bi.quantity), 0) AS total_qty "
+                    + "FROM bill_items bi "
+                    + "INNER JOIN bills b ON bi.bill_id = b.id "
+                    + "WHERE b.datetime LIKE ?";
             String averageSalesQuery = "SELECT IFNULL(AVG(total_amount), 0) FROM bills WHERE datetime LIKE ?";
 
             try (
@@ -98,36 +112,7 @@ public class ReportPage extends javax.swing.JPanel {
         }
     }
 
-    private void insertMockBillDataIfEmpty() {
-        try (
-                Connection conn = Database.getInstace().getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM bills")) {
-
-            if (rs.next() && rs.getInt(1) == 0) {
-                System.out.println("Inserting mock data...");
-
-                // Insert a sample creditor if not exists
-                stmt.execute("INSERT INTO creditors (name, total_debt, last_credit_date) "
-                        + "VALUES ('ගිහාන්', 0, datetime('now', 'localtime'))");
-
-                // Add 8 months of sales
-                String[] months = {"-01-", "-02-", "-03-", "-04-", "-05-", "-06-", "-07-", "-08-"};
-                for (int i = 0; i < months.length; i++) {
-                    String date = "'2025" + months[i] + "15 10:00:00'";
-                    double amount = (i + 1) * 10000;
-                    stmt.execute("INSERT INTO bills (datetime, total_amount, paid_amount, creditor_id) "
-                            + "VALUES (" + date + ", " + amount + ", " + amount + ", 1)");
-                }
-                System.out.println("✅ Mock sales data inserted.");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("❌ Failed to insert mock data: " + e.getMessage());
-        }
-    }
-
     private void showBarChartSinhala() {
-        insertMockBillDataIfEmpty();
-
         try {
             // Get data from database
             Map<Integer, Double> monthlyData = getMonthlySalesData();
@@ -269,24 +254,32 @@ public class ReportPage extends javax.swing.JPanel {
     }
 
     private void showPieChartSinhala() {
-        // 1. Create dataset manually
         DefaultPieDataset pieDataset = new DefaultPieDataset();
-        pieDataset.setValue("බත්", 120);       // Rice
-        pieDataset.setValue("පාන්", 80);       // Bread
-        pieDataset.setValue("කිරි", 60);       // Milk
-        pieDataset.setValue("බිස්කට්", 40);    // Biscuits
-        pieDataset.setValue("චොකලට්", 30);     // Chocolate
 
-        // 2. Create Pie Chart
+        String sql = "SELECT product_name, SUM(quantity) AS total_qty FROM bill_items bi JOIN bills b ON bi.bill_id = b.id  WHERE strftime('%m', b.datetime) = strftime('%m', 'now') AND strftime('%Y', b.datetime) = strftime('%Y', 'now') GROUP BY product_name ORDER BY total_qty DESC LIMIT 5";
+
+        // Temporary storage for keys to assign colors later
+        java.util.List<String> productNames = new java.util.ArrayList<>();
+
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                String productName = rs.getString("product_name");
+                int totalQty = rs.getInt("total_qty");
+                pieDataset.setValue(productName, totalQty);
+                productNames.add(productName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         JFreeChart pieChart = ChartFactory.createPieChart(
-                "විකුණුම් වාර්තාව", // Chart Title in Sinhala
+                "මෙම මාසයේ වඩා විකුණුනු අයිතම",
                 pieDataset,
-                true, // include legend
+                true,
                 true,
                 false
         );
 
-        // 3. Set Sinhala-compatible font
         Font sinhalaFont = new Font("Iskoola Pota", Font.PLAIN, 14);
         pieChart.getTitle().setFont(new Font("Iskoola Pota", Font.BOLD, 18));
         pieChart.getLegend().setItemFont(sinhalaFont);
@@ -298,27 +291,38 @@ public class ReportPage extends javax.swing.JPanel {
         plot.setSimpleLabels(true);
         plot.setCircular(true);
         plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1}"));
-        plot.setBackgroundPaint(null);     // Transparent plot background
         plot.setOutlineVisible(false);
+        plot.setBackgroundPaint(Color.WHITE);
+
+        // Light pastel colors palette
+        Color[] lightColors = new Color[]{
+            new Color(255, 179, 186),
+            new Color(255, 223, 186),
+            new Color(255, 255, 186),
+            new Color(186, 255, 201),
+            new Color(186, 225, 255),
+            new Color(204, 204, 255),
+            new Color(255, 204, 229)
+        };
+
+        // Assign colors based on product index (loop colors if more products than colors)
+        for (int i = 0; i < productNames.size(); i++) {
+            String key = productNames.get(i);
+            plot.setSectionPaint(key, lightColors[i % lightColors.length]);
+        }
 
         ChartPanel chartPanel = new ChartPanel(pieChart);
         chartPanel.setPreferredSize(new Dimension(500, 400));
         chartPanel.setMouseWheelEnabled(true);
-        chartPanel.setBackground(null);     // Transparent ChartPanel background
-        chartPanel.setOpaque(false);        // Makes the panel non-opaque (transparent)
         chartPanel.setBorder(null);
 
-        // Clear previous content in pieChartPanel
         piechart.removeAll();
         piechart.setLayout(new BorderLayout());
         piechart.add(chartPanel, BorderLayout.CENTER);
-
-        // Refresh panel
         piechart.revalidate();
         piechart.repaint();
     }
 
-// Helper method to get monthly sales data from your database
     private Map<Integer, Double> getMonthlySalesData() throws SQLException {
         Map<Integer, Double> monthlyData = new HashMap<>();
 
@@ -348,7 +352,8 @@ public class ReportPage extends javax.swing.JPanel {
 
     private void loadCashSalesToday() {
         String today = java.time.LocalDate.now().toString();
-        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
+        try (
+                Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
                 "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ? AND creditor_id IS NULL")) {
             stmt.setString(1, today + "%");
             ResultSet rs = stmt.executeQuery();
@@ -361,41 +366,66 @@ public class ReportPage extends javax.swing.JPanel {
         }
     }
 
-    private void loadCreditSalesToday() {
-        String today = java.time.LocalDate.now().toString();
-        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ? AND creditor_id IS NOT NULL")) {
-            stmt.setString(1, today + "%");
+    private void loadCashSalesLast30Days() {
+        String sql = """
+        SELECT IFNULL(SUM(total_amount), 0)
+        FROM bills
+        WHERE DATE(datetime) >= DATE('now', '-30 days')
+        AND total_amount = paid_amount
+    """;
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 double total = rs.getDouble(1);
-                jLabel37.setText(String.valueOf(total));
+                jLabel32.setText(String.valueOf(total));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void loadTotalBillCountToday() {
-        String today = java.time.LocalDate.now().toString();
-        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT COUNT(*) FROM bills WHERE datetime LIKE ?")) {
-            stmt.setString(1, today + "%");
+    private void loadCreditSalesLast30Days() {
+        String sql = """
+        SELECT IFNULL(SUM(total_amount - paid_amount), 0)
+        FROM bills
+        WHERE DATE(datetime) >= DATE('now', '-30 days')
+        AND paid_amount < total_amount
+    """;
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                double total = rs.getDouble(1);
+                jLabel36.setText(String.valueOf(total));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadTransactionCountLast30Days() {
+        String sql = """
+        SELECT COUNT(*)
+        FROM bills
+        WHERE DATE(datetime) >= DATE('now', '-30 days')
+    """;
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 int count = rs.getInt(1);
-                jLabel36.setText(String.valueOf(count));
+                jLabel37.setText(String.valueOf(count));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void loadTotalSalesToday() {
-        String today = java.time.LocalDate.now().toString();
-        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ?")) {
-            stmt.setString(1, today + "%");
+    private void loadTotalSalesLast30Days() {
+        String sql = """
+        SELECT IFNULL(SUM(total_amount), 0)
+        FROM bills
+        WHERE DATE(datetime) >= DATE('now', '-30 days')
+    """;
+        try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 double total = rs.getDouble(1);
@@ -406,27 +436,34 @@ public class ReportPage extends javax.swing.JPanel {
         }
     }
 
-    private void loadPopularProductsTable() {
-        String today = java.time.LocalDate.now().toString();
+    private void loadPopularProductsLast30Days() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        model.setRowCount(0); // clear existing rows
+        jTable1.setDefaultEditor(Object.class, null);
+
+        model.setRowCount(0);
 
         String sql = """
-        SELECT product_name, SUM(quantity) as qty_sold
-        FROM bill_items
-        WHERE bill_id IN (SELECT id FROM bills WHERE datetime LIKE ?)
-        GROUP BY product_name
+        SELECT bi.product_name,
+               SUM(bi.quantity) AS qty_sold,
+               SUM(bi.quantity * bi.sold_price) AS total_revenue
+        FROM bill_items bi
+        JOIN bills b ON bi.bill_id = b.id
+        WHERE DATE(b.datetime) >= DATE('now', '-30 days')
+        GROUP BY bi.product_name
         ORDER BY qty_sold DESC
         LIMIT 10
-        """;
+    """;
 
         try (Connection conn = Database.getInstace().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, today + "%");
+
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString("product_name");
                 int qty = rs.getInt("qty_sold");
-                model.addRow(new Object[]{name, qty});
+                double revenue = rs.getDouble("total_revenue");
+
+                System.out.println(name);
+                model.addRow(new Object[]{name, qty, revenue});
             }
         } catch (SQLException e) {
             e.printStackTrace();
