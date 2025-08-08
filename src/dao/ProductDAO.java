@@ -119,6 +119,37 @@ public class ProductDAO {
 
         return products;
     }
+    
+    public Product searchByBarcode(String barcode) throws SQLException {
+
+        String sql = "SELECT * FROM products WHERE barcode = ? ";
+
+        Connection connection = Database.getInstace().getConnection();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            String searchKey = barcode;
+
+            pstmt.setString(1, searchKey);
+            pstmt.setString(2, searchKey);
+            pstmt.setString(3, searchKey);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Product p = new Product(rs.getString("barcode"),
+                        rs.getString("si_name"),
+                        rs.getString("en_name"),
+                        rs.getDouble("weladapala_mila"),
+                        rs.getDouble("ape_mila"));
+
+                return p;
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     public boolean deleteProduct(String id) throws SQLException {
         Connection connection = Database.getInstace().getConnection();
