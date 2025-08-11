@@ -214,7 +214,7 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel9.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
         jLabel9.setText("අපේ මිල");
 
-        jButton3.setBackground(new java.awt.Color(0, 153, 255));
+        jButton3.setBackground(new java.awt.Color(0, 153, 153));
         jButton3.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("අයිතමය එකතු කරන්න");
