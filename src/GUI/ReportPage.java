@@ -19,7 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.jfree.chart.axis.CategoryAxis;
-import java.sql.Statement;
 import javax.swing.table.DefaultTableModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
