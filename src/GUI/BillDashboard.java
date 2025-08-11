@@ -39,6 +39,8 @@ public class BillDashboard extends javax.swing.JPanel {
     public BillDashboard() {
         initComponents();
 
+        jTextField1.setEnabled(false);
+
         updatetotal();
 
         initializeCustomerComboBox();
@@ -61,7 +63,6 @@ public class BillDashboard extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
         jPanel9 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
@@ -102,7 +103,8 @@ public class BillDashboard extends javax.swing.JPanel {
         jCheckBox1 = new javax.swing.JCheckBox();
         jLabel4 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -121,9 +123,6 @@ public class BillDashboard extends javax.swing.JPanel {
         setLayout(new java.awt.BorderLayout());
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
-
-        jLabel10.setFont(new java.awt.Font("Iskoola Pota", 1, 24)); // NOI18N
-        jLabel10.setText("බිල් අයිතම");
 
         jTable2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
@@ -164,22 +163,14 @@ public class BillDashboard extends javax.swing.JPanel {
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel10)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2)
-                        .addGap(20, 20, 20))))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 851, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel10)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -228,7 +219,7 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel11.setFont(new java.awt.Font("Iskoola Pota", 1, 24)); // NOI18N
         jLabel11.setText("නිෂ්පාදන ඇතුලත් කිරීම");
 
-        jFormattedTextField7.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("0.0"))));
+        jFormattedTextField7.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
         jFormattedTextField7.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jFormattedTextField7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jFormattedTextField7.addActionListener(new java.awt.event.ActionListener() {
@@ -296,7 +287,7 @@ public class BillDashboard extends javax.swing.JPanel {
                                     .addGroup(jPanel4Layout.createSequentialGroup()
                                         .addGap(21, 21, 21)
                                         .addComponent(jFormattedTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addContainerGap(36, Short.MAX_VALUE))))
+                                .addGap(36, 36, 36))))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel11)
                         .addContainerGap())))
@@ -386,29 +377,30 @@ public class BillDashboard extends javax.swing.JPanel {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(12, Short.MAX_VALUE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel12)
                             .addComponent(jLabel13))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(104, 104, 104)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(jLabel16)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(jLabel15)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel16, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
-                            .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(21, 21, 21))
+                            .addComponent(jLabel1)
+                            .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel14)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(99, 99, 99)
                         .addComponent(jLabel17)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20))))
+                        .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -463,16 +455,16 @@ public class BillDashboard extends javax.swing.JPanel {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel24)
-                    .addComponent(jLabel21))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jLabel25)
+                        .addComponent(jLabel24)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(7, 7, 7))
-                    .addComponent(jTextField3))
+                        .addComponent(jLabel25)
+                        .addGap(130, 130, 130)
+                        .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel21)
+                        .addGap(122, 122, 122)
+                        .addComponent(jTextField3)))
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -487,7 +479,7 @@ public class BillDashboard extends javax.swing.JPanel {
                     .addComponent(jLabel24)
                     .addComponent(jLabel25)
                     .addComponent(jLabel39))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addGap(18, 18, 18))
         );
 
         jButton4.setBackground(new java.awt.Color(0, 153, 0));
@@ -527,35 +519,50 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
         jLabel2.setText("පාරිභෝගික නම");
 
-        jButton1.setText("+");
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setFont(new java.awt.Font("Iskoola Pota", 1, 24)); // NOI18N
+        jLabel10.setText("බිල් අයිතම");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
-                .addGap(0, 892, Short.MAX_VALUE)
+            .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel9Layout.createSequentialGroup()
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jButton1))
-                        .addComponent(jCheckBox1)
-                        .addComponent(jLabel4)
-                        .addComponent(jLabel2)
-                        .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addComponent(jLabel10)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4)
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel9Layout.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGap(340, 340, 340)))
         );
         jPanel9Layout.setVerticalGroup(
@@ -563,9 +570,15 @@ public class BillDashboard extends javax.swing.JPanel {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel10)))
                 .addGap(8, 8, 8)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -573,20 +586,18 @@ public class BillDashboard extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
-                .addGap(18, 18, 18)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCheckBox1)
-                .addGap(33, 33, 33)
+                .addGap(39, 39, 39)
                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(217, Short.MAX_VALUE))
             .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel9Layout.createSequentialGroup()
-                    .addGap(150, 150, 150)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                    .addContainerGap(284, Short.MAX_VALUE)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap()))
         );
 
@@ -594,11 +605,52 @@ public class BillDashboard extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        resetForm();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // Get balance from jLabel39
+            double balance = Double.parseDouble(jLabel39.getText());
+
+            if (balance < 0) {
+                // Negative balance - credit customer
+                int response = JOptionPane.showConfirmDialog(
+                        this,
+                        "💳 මෙම ගනුදෙනුකරුට දැනටමත් ණය තියෙනවා 😮‍💨.",
+                        "📋 කරුණාකර පළමුව ඔවුන් ලැයිස්තුවට එක් කරන්න .",
+                        JOptionPane.YES_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+                if (response == JOptionPane.YES_OPTION) {
+                    // Enable text field and request focus
+                    jTextField1.setEnabled(true);
+                    jTextField1.requestFocus();
+                    jTextField1.setEnabled(true);
+
+                    // Show instruction message
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "✏️ කරුණාකර ගනුදෙනුකරුගේ නම ඇතුළත් කර",
+                            "⏎ Enter ඔබන්න.",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                } else {
+                    // User chose not to add customer, cancel the operation
+                    return;
+                }
+            } else {
+                printBill();
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid balance format. Please check the balance value.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
@@ -652,9 +704,9 @@ public class BillDashboard extends javax.swing.JPanel {
 
         } catch (SQLException ex) {
             Logger.getLogger(BillDashboard.class.getName()).log(Level.SEVERE,
-                "Database error while searching products", ex);
+                    "Database error while searching products", ex);
             JOptionPane.showMessageDialog(this, "Database error occurred. Please try again.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error", JOptionPane.ERROR_MESSAGE);
             clearProductFields();
             barcodeInput.selectAll();
             barcodeInput.requestFocus();
@@ -664,6 +716,46 @@ public class BillDashboard extends javax.swing.JPanel {
     private void jTable2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable2KeyPressed
 
     }//GEN-LAST:event_jTable2KeyPressed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        String customerName = jTextField1.getText().trim();
+
+        if (customerName.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter a valid customer name.",
+                    "Invalid Name",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            jTextField1.requestFocus();
+            return;
+        }
+
+        try {
+            // Get the debt amount (absolute value of negative balance)
+            double debtAmount = Math.abs(Double.parseDouble(jLabel39.getText()));
+
+            // Insert or update customer in database
+            insertOrUpdateCreditor(customerName, debtAmount);
+            System.out.println(debtAmount);
+
+            // Disable text field after successful entry
+            jTextField1.setEnabled(false);
+            jTextField1.setText(""); // Clear the field
+
+            // Print the bill
+            printBill();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error saving customer information: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            jTextField1.requestFocus();
+        }
+    }//GEN-LAST:event_jTextField1ActionPerformed
     private void clearProductFields() {
         jTextField2.setText("");
         jFormattedTextField8.setValue(0.0);
@@ -909,7 +1001,6 @@ public class BillDashboard extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField barcodeInput;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
@@ -952,6 +1043,7 @@ public class BillDashboard extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
@@ -1003,19 +1095,17 @@ public class BillDashboard extends javax.swing.JPanel {
         }
 
         if (barcodeRowMap.containsKey(barcode)) {
-            // Update existing row
             int rowIndex = barcodeRowMap.get(barcode);
             double currentQty = (double) model.getValueAt(rowIndex, 2);
             double newQty = currentQty + quantity;
 
-            model.setValueAt(newQty, rowIndex, 2); // Update quantity
-            model.setValueAt(newQty * apeMila, rowIndex, 5); // Update total
+            model.setValueAt(newQty, rowIndex, 2);
+            model.setValueAt(newQty * apeMila, rowIndex, 5);
 
             updateSubTotalPrice();
             updateTotalSaving();
             calculateTotal();
         } else {
-            // Add new row
             double total = quantity * apeMila;
             int rowNumber = model.getRowCount() + 1;
 
@@ -1156,25 +1246,122 @@ public class BillDashboard extends javax.swing.JPanel {
 
     private void updateBalance() {
         try {
-            // Get total amount
             double total = Double.parseDouble(jLabel20.getText());
 
-            // Get amount given by customer
             String input = jTextField3.getText().trim();
             if (!input.isEmpty()) {
                 double given = Double.parseDouble(input);
 
-                // Calculate balance
                 double balance = given - total;
 
-                // Display balance
                 jLabel39.setText(String.format("%.2f", balance));
             } else {
                 jLabel39.setText("0.00");
             }
         } catch (NumberFormatException e) {
-            jLabel39.setText("0.00"); // Invalid input
+            jLabel39.setText("0.00");
         }
     }
 
+    private void printBill() {
+        System.out.println("Print bill");
+
+        resetForm();
+    }
+
+    private void insertOrUpdateCreditor(String customerName, double debtAmount) throws SQLException {
+        Connection conn = null;
+        PreparedStatement checkStmt = null;
+        PreparedStatement insertStmt = null;
+        PreparedStatement updateStmt = null;
+        ResultSet rs = null;
+
+        try {
+            // Get database connection using your Database class
+            Database db = Database.getInstace();
+            conn = db.getConnection();
+
+            // Check if customer already exists
+            checkStmt = conn.prepareStatement("SELECT id, total_debt FROM creditors WHERE name = ?");
+            checkStmt.setString(1, customerName);
+            rs = checkStmt.executeQuery();
+
+            String currentDate = java.time.LocalDateTime.now().toString();
+
+            if (rs.next()) {
+                // Customer exists, update debt
+                double existingDebt = rs.getDouble("total_debt");
+                double newTotalDebt = existingDebt + debtAmount;
+
+                updateStmt = conn.prepareStatement(
+                        "UPDATE creditors SET total_debt = ?, last_credit_date = ? WHERE name = ?"
+                );
+                updateStmt.setDouble(1, newTotalDebt);
+                updateStmt.setString(2, currentDate);
+                updateStmt.setString(3, customerName);
+                updateStmt.executeUpdate();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        String.format("Customer '%s' debt updated. New total debt: %.2f",
+                                customerName, newTotalDebt),
+                        "Customer Updated",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } else {
+                // New customer, insert
+                insertStmt = conn.prepareStatement(
+                        "INSERT INTO creditors (name, total_debt, last_credit_date) VALUES (?, ?, ?)"
+                );
+                insertStmt.setString(1, customerName);
+                insertStmt.setDouble(2, debtAmount);
+                insertStmt.setString(3, currentDate);
+                insertStmt.executeUpdate();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        String.format("New credit customer '%s' added with debt: %.2f",
+                                customerName, debtAmount),
+                        "Customer Added",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+        } finally {
+            // Close all resources
+            if (rs != null) {
+                rs.close();
+            }
+            if (checkStmt != null) {
+                checkStmt.close();
+            }
+            if (insertStmt != null) {
+                insertStmt.close();
+            }
+            if (updateStmt != null) {
+                updateStmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    public void resetForm() {
+        jLabel18.setText("0.00");
+        jLabel19.setText("0.00");
+        jLabel20.setText("0.00");
+        jLabel39.setText("0.00");
+
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
+
+        jTextField1.setText("");
+        jTextField3.setText("");
+        jTextField1.setEnabled(false);
+
+        jCheckBox1.setSelected(false);
+
+        originalPrices.clear();
+
+    }
 }
