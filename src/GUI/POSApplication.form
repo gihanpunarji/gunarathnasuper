@@ -128,7 +128,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Iskoola Pota" size="14" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="&#xdbb;&#xdd4;&#xdc0;&#xdb1;&#xdca;&#xdc0;&#xdd0;&#xdbd;&#xdca;&#xdbd;"/>
+            <Property name="text" type="java.lang.String" value="&#xdb4;&#xdb1;&#xdca;&#xdb1;&#xdbd; &#xd8b;&#xdad;&#xdd4;&#xdbb;"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel6">
