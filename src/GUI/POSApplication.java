@@ -49,7 +49,7 @@ public class POSApplication extends javax.swing.JFrame {
         jLabel3.setText("----------");
 
         jLabel5.setFont(new java.awt.Font("Iskoola Pota", 1, 14)); // NOI18N
-        jLabel5.setText("රුවන්වැල්ල");
+        jLabel5.setText("පන්නල උතුර");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
