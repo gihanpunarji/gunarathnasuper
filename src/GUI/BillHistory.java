@@ -1,34 +1,28 @@
 package GUI;
 
 import database.Database;
-import java.awt.Color;
-import java.awt.Font;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import com.toedter.calendar.JDateChooser;
 
 public class BillHistory extends javax.swing.JPanel {
 
     public BillHistory() {
         initComponents();
-//        loadBillStats();
+        loadBillStats();
         jComboBox1.addItem("සියළුම");
         jComboBox1.addItem("අද දින");
         jComboBox1.addItem("මෙම සතිය තුළ");
         jComboBox1.addItem("මෙමස");
+        loadBillData();
 
     }
 
@@ -39,18 +33,19 @@ public class BillHistory extends javax.swing.JPanel {
                 return;
             }
 
-            String sql = "SELECT COUNT(*) AS total_bills, "
-                    + "COALESCE(SUM(CASE WHEN payment_type = 'cash' THEN total_amount ELSE 0 END), 0) AS cash_sales, "
-                    + "COALESCE(SUM(CASE WHEN payment_type = 'credit' THEN total_amount ELSE 0 END), 0) AS credit_sales, "
+            String sql = "SELECT "
+                    + "COUNT(*) AS total_bills, "
+                    + "COALESCE(SUM(CASE WHEN paid_amount = total_amount THEN total_amount ELSE 0 END), 0) AS cash_sales, "
+                    + "COALESCE(SUM(CASE WHEN paid_amount < total_amount THEN total_amount ELSE 0 END), 0) AS credit_sales, "
                     + "COALESCE(SUM(total_amount), 0) AS total_income "
                     + "FROM bills";
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    jLabel31.setText(String.valueOf(rs.getInt("total_bills")));
-                    jLabel32.setText(String.valueOf(rs.getDouble("cash_sales")));
-                    jLabel26.setText(String.valueOf(rs.getDouble("credit_sales")));
-                    jLabel30.setText(String.valueOf(rs.getDouble("total_income")));
+                    jLabel31.setText(String.valueOf(rs.getInt("total_bills")));      // total bills
+                    jLabel32.setText(String.format("%.2f", rs.getDouble("cash_sales")));    // cash sales
+                    jLabel26.setText(String.format("%.2f", rs.getDouble("credit_sales")));  // credit sales
+                    jLabel30.setText(String.format("%.2f", rs.getDouble("total_income")));  // total income
                 }
             }
         } catch (SQLException ex) {
@@ -67,7 +62,7 @@ public class BillHistory extends javax.swing.JPanel {
             Date toDate = jDateChooser2.getDate();
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.setRowCount(0); // clear table
+            model.setRowCount(0);
 
             StringBuilder sql = new StringBuilder(
                     "SELECT bills.id, bills.datetime, bills.total_amount, bills.paid_amount, "
@@ -81,12 +76,12 @@ public class BillHistory extends javax.swing.JPanel {
 
             // Search filter
             if (!searchText.isEmpty()) {
-                sql.append("AND (bills.id LIKE ? OR creditors.name LIKE ?) ");
+                sql.append("AND (CAST(bills.id AS TEXT) LIKE ? OR creditors.name LIKE ?) ");
                 params.add("%" + searchText + "%");
                 params.add("%" + searchText + "%");
             }
 
-            // Date range filter (only apply if both dates are selected)
+            // Date range filter (only if both selected)
             if (fromDate != null && toDate != null) {
                 sql.append("AND DATE(bills.datetime) BETWEEN ? AND ? ");
                 params.add(new java.sql.Date(fromDate.getTime()));
@@ -96,17 +91,20 @@ public class BillHistory extends javax.swing.JPanel {
                 return;
             }
 
-            // Sort filter (today, week, etc.)
-            switch (filterOption) {
-                case "Today":
-                    sql.append("AND DATE(bills.datetime) = DATE('now', 'localtime') ");
-                    break;
-                case "This Week":
-                    sql.append("AND bills.datetime >= datetime('now', 'start of day', 'weekday 0', '-7 days') ");
-                    break;
-                case "This Month":
-                    sql.append("AND strftime('%Y-%m', bills.datetime) = strftime('%Y-%m', 'now') ");
-                    break;
+            // Filter by combo box option, **only if not 'සියළුම' (All)**
+            if (!filterOption.equals("සියළුම")) {
+                switch (filterOption) {
+                    case "අද දින": // Today
+                        sql.append("AND DATE(bills.datetime) = DATE('now', 'localtime') ");
+                        break;
+                    case "මෙම සතිය තුළ": // This Week
+                        // SQLite: starting from last Sunday, last 7 days
+                        sql.append("AND bills.datetime >= datetime('now', 'start of day', 'weekday 0', '-7 days') ");
+                        break;
+                    case "මෙමස": // This Month
+                        sql.append("AND strftime('%Y-%m', bills.datetime) = strftime('%Y-%m', 'now') ");
+                        break;
+                }
             }
 
             sql.append("ORDER BY bills.datetime DESC");
@@ -130,11 +128,10 @@ public class BillHistory extends javax.swing.JPanel {
                     Object[] row = new Object[5];
                     row[0] = billId;
                     row[1] = datetime;
-                    row[2] = name != null ? name : ""; // show name only if credit
+                    row[2] = name != null ? name : "";
                     row[3] = String.format("%.2f", total);
 
                     if (balance > 0) {
-                        // Credit bill → show red with minus
                         row[4] = "<html><font color='red'>-" + String.format("%.2f", balance) + "</font></html>";
                     } else {
                         row[4] = "0.00";
@@ -142,8 +139,8 @@ public class BillHistory extends javax.swing.JPanel {
 
                     model.addRow(row);
                 }
-
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error loading bills: " + ex.getMessage());
@@ -453,6 +450,11 @@ public class BillHistory extends javax.swing.JPanel {
                 jTextField2ActionPerformed(evt);
             }
         });
+        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextField2KeyPressed(evt);
+            }
+        });
 
         jLabel6.setFont(new java.awt.Font("Iskoola Pota", 0, 24)); // NOI18N
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -463,6 +465,11 @@ public class BillHistory extends javax.swing.JPanel {
         jLabel7.setText("Sort By :");
 
         jComboBox1.setFont(new java.awt.Font("Iskoola Pota", 0, 14)); // NOI18N
+        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox1ItemStateChanged(evt);
+            }
+        });
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
@@ -649,12 +656,20 @@ public class BillHistory extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        resetFilters();
+        loadBillData();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-
+        resetFilters();
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jTextField2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyPressed
+        loadBillData();
+    }//GEN-LAST:event_jTextField2KeyPressed
+
+    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+        loadBillData();
+    }//GEN-LAST:event_jComboBox1ItemStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton4;

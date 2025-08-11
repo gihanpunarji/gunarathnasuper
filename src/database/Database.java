@@ -50,12 +50,6 @@ public class Database {
                     + "weladapala_mila REAL NOT NULL,"
                     + "ape_mila REAL NOT NULL)");
 
-            stmt.execute("INSERT OR IGNORE INTO products (barcode, si_name, en_name, weladapala_mila, ape_mila) VALUES "
-                    + "('1001', 'සීනි', 'Sugar', 150.0, 180.0),"
-                    + "('1002', 'ටේ', 'Tea', 200.0, 250.0),"
-                    + "('1003', 'කෝපි', 'Coffee', 300.0, 350.0)");
-
-            // Creditors table with check
             boolean creditorsTableExists = checkTableExists(stmt, "creditors");
             boolean hasLastCreditDate = false;
 
@@ -71,13 +65,7 @@ public class Database {
                         + "last_credit_date TEXT)");
             } else if (!hasLastCreditDate) {
                 stmt.execute("ALTER TABLE creditors ADD COLUMN last_credit_date TEXT");
-                stmt.execute("UPDATE creditors SET last_credit_date = datetime('now', 'localtime') WHERE last_credit_date IS NULL");
             }
-
-            // Add test creditors
-            stmt.execute("INSERT OR IGNORE INTO creditors (id, name, total_debt, last_credit_date) VALUES "
-                    + "(1, 'Kasun', 1000.0, datetime('now', '-2 days')),"
-                    + "(2, 'Nimali', 500.0, datetime('now', '-1 days'))");
 
             // Bills table
             stmt.execute("CREATE TABLE IF NOT EXISTS bills ("
@@ -87,16 +75,6 @@ public class Database {
                     + "paid_amount REAL NOT NULL,"
                     + "creditor_id INTEGER,"
                     + "FOREIGN KEY(creditor_id) REFERENCES creditors(id))");
-
-            // Add test bills (cash and credit)
-            stmt.execute("INSERT OR IGNORE INTO bills (id, datetime, total_amount, paid_amount, creditor_id) VALUES "
-                    + "(1, datetime('now', '-2 days'), 700.0, 700.0, NULL),"
-                    + // Cash
-                    "(2, datetime('now', '-1 days'), 1000.0, 0.0, 1),"
-                    + // Credit - Kasun
-                    "(3, datetime('now'), 1500.0, 1500.0, NULL),"
-                    + // Cash
-                    "(4, datetime('now'), 500.0, 0.0, 2)");                   // Credit - Nimali
 
             // Bill Items table
             stmt.execute("CREATE TABLE IF NOT EXISTS bill_items ("
@@ -108,14 +86,6 @@ public class Database {
                     + "sold_price REAL NOT NULL,"
                     + "quantity INTEGER NOT NULL,"
                     + "FOREIGN KEY(bill_id) REFERENCES bills(id) ON DELETE CASCADE)");
-
-            // Add test bill items
-            stmt.execute("INSERT OR IGNORE INTO bill_items (bill_id, barcode, product_name, marked_price, sold_price, quantity) VALUES "
-                    + "(1, '1001', 'Sugar', 150.0, 180.0, 2),"
-                    + "(2, '1002', 'Tea', 200.0, 250.0, 3),"
-                    + "(3, '1001', 'Sugar', 150.0, 180.0, 1),"
-                    + "(3, '1003', 'Coffee', 300.0, 350.0, 1),"
-                    + "(4, '1003', 'Coffee', 300.0, 350.0, 2)");
 
             System.out.println("Tables and test data initialized successfully");
         } catch (SQLException e) {
