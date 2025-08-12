@@ -3,6 +3,8 @@ package GUI;
 import database.Database;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +14,9 @@ import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -395,7 +399,10 @@ public class CreditedCustomer extends javax.swing.JPanel {
                 jTable3.setModel(model);
                 jTable3.getTableHeader().setReorderingAllowed(false);
                 jTable3.setFont(new Font("SansSerif", Font.PLAIN, 19));
+
+                // Add both listeners
                 addDebtEditListener();
+                addDeleteKeyListener();
 
                 JTableHeader header = jTable3.getTableHeader();
                 if (header != null) {
@@ -425,15 +432,34 @@ public class CreditedCustomer extends javax.swing.JPanel {
 
                 if (value instanceof Number) {
                     double newAmount = ((Number) value).doubleValue();
-                    int confirm = JOptionPane.showConfirmDialog(this,
-                            "ඔබට '" + customerName + "' හි වට්ටම් මුදල " + value + newAmount + " ලෙස යාවත්කාලීන කිරීමට අවශ්‍යද?",
-                            "තහවුරු කිරීම", JOptionPane.YES_NO_OPTION);
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        if (updateCreditedAmount(customerId, newAmount)) {
-                            refreshData();
+
+                    // Check if the new amount is 0
+                    if (newAmount == 0.0) {
+                        int confirm = JOptionPane.showConfirmDialog(this,
+                                "ණය මුදල 0 වී ඇත. '" + customerName + "' පාරිභෝගිකයා ණයකරුවන් ලැයිස්තුවෙන් ඉවත් කරන්නද?",
+                                "ඉවත් කිරීම තහවුරු කරන්න",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE);
+
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            if (deleteCreditor(customerId, customerName)) {
+                                refreshData();
+                            }
+                        } else {
+                            refreshData(); // Reset table if user cancels
                         }
                     } else {
-                        refreshData(); // cancel = reset table value
+                        int confirm = JOptionPane.showConfirmDialog(this,
+                                "ඔබට '" + customerName + "' හි ණය මුදල " + newAmount + " ලෙස යාවත්කාලීන කිරීමට අවශ්‍යද?",
+                                "තහවුරු කිරීම", JOptionPane.YES_NO_OPTION);
+
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            if (updateCreditedAmount(customerId, newAmount)) {
+                                refreshData();
+                            }
+                        } else {
+                            refreshData(); // Reset table if user cancels
+                        }
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "වලංගු ද්‍රව්‍යම මුදලක් ඇතුළත් කරන්න!", "දෝෂයකි", JOptionPane.ERROR_MESSAGE);
@@ -441,6 +467,108 @@ public class CreditedCustomer extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    private void addDeleteKeyListener() {
+        jTable3.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    int selectedRow = jTable3.getSelectedRow();
+                    if (selectedRow != -1) {
+                        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+                        int customerId = (int) model.getValueAt(selectedRow, 0);
+                        String customerName = (String) model.getValueAt(selectedRow, 1);
+                        double totalDebt = (double) model.getValueAt(selectedRow, 3);
+
+                        int confirm = JOptionPane.showConfirmDialog(
+                                CreditedCustomer.this,
+                                "ඔබට '" + customerName + "' පාරිභෝගිකයා (ණය: " + decimalFormat.format(totalDebt) + ") "
+                                + "ණයකරුවන් ලැයිස්තුවෙන් සම්පූර්ණයෙන්ම ඉවත් කිරීමට අවශ්‍යද?\n\n"
+                                + "⚠️ මෙය ආපසු හැරවිය නොහැකි ක්‍රියාමාර්ගයකි!",
+                                "පාරිභෝගිකයා ඉවත් කිරීම තහවුරු කරන්න",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE
+                        );
+
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            if (deleteCreditor(customerId, customerName)) {
+                                refreshData();
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                CreditedCustomer.this,
+                                "කරුණාකර ඉවත් කිරීමට පාරිභෝගිකයෙකු තෝරන්න!",
+                                "තේරීමක් නොමැත",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
+                    }
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                // Not needed
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // Not needed
+            }
+        });
+
+        // Make sure the table can receive focus for key events
+        jTable3.setFocusable(true);
+        jTable3.requestFocus();
+    }
+
+    private boolean deleteCreditor(int customerId, String customerName) {
+        try (Connection conn = Database.getInstace().getConnection()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this,
+                        "දත්ත ගබඩාවට සම්බන්ධ වීමට නොහැකි විය!",
+                        "දෝෂයකි",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            // First, update any bills that reference this creditor to remove the reference
+            String updateBillsQuery = "UPDATE bills SET creditor_id = NULL WHERE creditor_id = ?";
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateBillsQuery)) {
+                updateStmt.setInt(1, customerId);
+                updateStmt.executeUpdate();
+            }
+
+            // Now delete the creditor
+            String deleteQuery = "DELETE FROM creditors WHERE id = ?";
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
+                deleteStmt.setInt(1, customerId);
+                int rowsAffected = deleteStmt.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "පාරිභෝගිකයා '" + customerName + "' සාර්ථකව ඉවත් කරන ලදී!",
+                            "සාර්ථකයි",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return true;
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "පාරිභෝගිකයා ඉවත් කිරීමට අසමත් විය!",
+                            "දෝෂයකි",
+                            JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CreditedCustomer.class.getName()).log(Level.SEVERE, "Database error during deletion", ex);
+            JOptionPane.showMessageDialog(this,
+                    "දත්ත ගබඩා දෝෂය: " + ex.getMessage(),
+                    "දෝෂයකි",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     private void searchCreditedCustomers() {
