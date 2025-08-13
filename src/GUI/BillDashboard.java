@@ -35,11 +35,14 @@ public class BillDashboard extends javax.swing.JPanel {
 
     private final Map<String, Integer> barcodeRowMap = new HashMap<>();
     private final Map<Integer, Double> originalPrices = new HashMap<>();
+    private int selectedCustomerId = -1;
+    private double creditBalance = 0.0;
 
     public BillDashboard() {
         initComponents();
 
         jTextField1.setEnabled(false);
+        creditBalanceTextField.setEditable(false);
 
         updatetotal();
 
@@ -93,10 +96,10 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel20 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
         jLabel39 = new javax.swing.JLabel();
+        jFormattedTextField10 = new javax.swing.JFormattedTextField();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
@@ -105,6 +108,9 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jComboBox2 = new javax.swing.JComboBox<>();
         jTextField1 = new javax.swing.JTextField();
+        creditBalanceLabel = new javax.swing.JLabel();
+        creditBalanceTextField = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -169,7 +175,7 @@ public class BillDashboard extends javax.swing.JPanel {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 874, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -181,7 +187,7 @@ public class BillDashboard extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -434,14 +440,6 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel21.setFont(new java.awt.Font("Iskoola Pota", 1, 18)); // NOI18N
         jLabel21.setText("ගෙවීම්");
 
-        jTextField3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jTextField3.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField3KeyReleased(evt);
-            }
-        });
-
         jLabel24.setFont(new java.awt.Font("Iskoola Pota", 0, 18)); // NOI18N
         jLabel24.setText("ශේෂය");
 
@@ -452,6 +450,20 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel39.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel39.setText("0.00");
 
+        jFormattedTextField10.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.00"))));
+        jFormattedTextField10.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jFormattedTextField10.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jFormattedTextField10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jFormattedTextField10ActionPerformed(evt);
+            }
+        });
+        jFormattedTextField10.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jFormattedTextField10KeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
@@ -460,24 +472,24 @@ public class BillDashboard extends javax.swing.JPanel {
                 .addGap(10, 10, 10)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jLabel21)
-                        .addGap(94, 94, 94)
-                        .addComponent(jTextField3))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(jLabel24)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel25)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel21)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jFormattedTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(16, 16, 16))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGap(12, 12, 12)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel21)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jFormattedTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel24)
@@ -519,6 +531,11 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel2.setText("පාරිභෝගික නම");
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox2.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox2ItemStateChanged(evt);
+            }
+        });
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -526,8 +543,15 @@ public class BillDashboard extends javax.swing.JPanel {
             }
         });
 
-        jCheckBox1.setFont(new java.awt.Font("Iskoola Pota", 0, 16)); // NOI18N
-        jCheckBox1.setText("ණය ගණුදෙනුකරුවකු.");
+        creditBalanceLabel.setText(" ");
+
+        creditBalanceTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                creditBalanceTextFieldActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("මුලු ණය : ");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -536,13 +560,19 @@ public class BillDashboard extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(creditBalanceLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+                            .addComponent(creditBalanceTextField))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -557,9 +587,15 @@ public class BillDashboard extends javax.swing.JPanel {
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBox1)
-                .addContainerGap(9, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(creditBalanceTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(creditBalanceLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jCheckBox1.setFont(new java.awt.Font("Iskoola Pota", 0, 16)); // NOI18N
+        jCheckBox1.setText("ණය ගණුදෙනුකරුවකු.");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -572,12 +608,14 @@ public class BillDashboard extends javax.swing.JPanel {
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jButton4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(10, 10, 10))
         );
         jPanel9Layout.setVerticalGroup(
@@ -592,7 +630,9 @@ public class BillDashboard extends javax.swing.JPanel {
                         .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBox1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -612,53 +652,91 @@ public class BillDashboard extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        try {
-            // Get balance from jLabel39
-            double balance = Double.parseDouble(jLabel39.getText());
-
-            if (balance < 0) {
-                // Negative balance - credit customer
-                int response = JOptionPane.showConfirmDialog(
-                        this,
-                        "💳 මෙම ගනුදෙනුකරුට දැනටමත් ණය තියෙනවා 😮‍💨.",
-                        "📋 කරුණාකර පළමුව ඔවුන් ලැයිස්තුවට එක් කරන්න .",
-                        JOptionPane.YES_OPTION,
-                        JOptionPane.QUESTION_MESSAGE
-                );
-
-                if (response == JOptionPane.YES_OPTION) {
-                    // Enable text field and request focus
-                    jTextField1.setEnabled(true);
-                    jTextField1.requestFocus();
-                    jTextField1.setEnabled(true);
-
-                    // Show instruction message
+        if (!jFormattedTextField10.getText().trim().isEmpty()) {
+            try {
+                double payment = Double.parseDouble(jFormattedTextField10.getText());
+                if (payment == 0.0) {
                     JOptionPane.showMessageDialog(
                             this,
-                            "✏️ කරුණාකර ගනුදෙනුකරුගේ නම ඇතුළත් කර",
-                            "⏎ Enter ඔබන්න.",
-                            JOptionPane.INFORMATION_MESSAGE
+                            "පාරිබෝගිකයාව තෝරන්න්න.",
+                            "Warning",
+                            JOptionPane.WARNING_MESSAGE
                     );
-                } else {
-                    // User chose not to add customer, cancel the operation
                     return;
                 }
-            } else {
-                printBill();
+
+                double balance = Double.parseDouble(jLabel39.getText());
+
+                if (balance < 0) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "💳 අවවාදයයි.\n📋 මුලු මුදලම ගෙවා නැත, කරුණාකර ලැයිස්තුවට එක් කරන්න.",
+                            "Credit Customer",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    jTextField1.setEnabled(true);
+                    jTextField1.requestFocus();
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "✏️ කරුණාකර ගනුදෙනුකරුගේ නම ඇතුළත් කර ⏎ Enter ඔබන්න.",
+                            "Enter",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                    return;
+
+                } else {
+                    try {
+                        double creditValue = Double.parseDouble(creditBalanceLabel.getText());
+
+                        if (creditValue > 0.0) {
+                            int response = JOptionPane.showConfirmDialog(
+                                    this,
+                                    "💳 මෙම ගනුදෙනුකරුට රු. " + creditValue + " ක ණය තිබේ.\n"
+                                    + "ඔබට එය ගෙවීමට අවශ්‍යද?",
+                                    "🔔 ණය ගෙවීම",
+                                    JOptionPane.YES_NO_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE
+                            );
+
+                            if (response == JOptionPane.YES_OPTION) {
+                                creditBalanceTextField.setEditable(true);
+                                creditBalanceTextField.requestFocus();
+                                return;
+                            } else {
+                                printBill();
+                                return;
+                            }
+                        } else {
+                            printBill();
+                            return;
+                        }
+
+                    } catch (NumberFormatException ex) {
+                        System.err.println("Invalid credit balance format: " + ex.getMessage());
+                        printBill();
+                        return;
+                    }
+                }
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invalid payment or balance format. Please check the values.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
             }
-        } catch (NumberFormatException e) {
+        } else {
             JOptionPane.showMessageDialog(
                     this,
-                    "Invalid balance format. Please check the balance value.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
+                    "කරුණාකර ගෙවන මුදල ඇතුළත් කරන්න.",
+                    "Payment Required",
+                    JOptionPane.WARNING_MESSAGE
             );
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
-        updateBalance();
-    }//GEN-LAST:event_jTextField3KeyReleased
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jFormattedTextField9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField9ActionPerformed
 
@@ -759,6 +837,28 @@ public class BillDashboard extends javax.swing.JPanel {
             jTextField1.requestFocus();
         }
     }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void creditBalanceTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creditBalanceTextFieldActionPerformed
+        updateCredit();
+
+    }//GEN-LAST:event_creditBalanceTextFieldActionPerformed
+
+    private void jComboBox2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox2ItemStateChanged
+
+    }//GEN-LAST:event_jComboBox2ItemStateChanged
+
+    private void jFormattedTextField10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField10ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jFormattedTextField10ActionPerformed
+
+    private void jFormattedTextField10KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jFormattedTextField10KeyReleased
+        double total = Double.parseDouble(jLabel20.getText());
+        if (!jFormattedTextField10.getText().trim().isEmpty()) {
+
+            double payment = Double.parseDouble(jFormattedTextField10.getText());
+            jLabel39.setText(String.format("%.2f", (payment - total)));
+        }
+    }//GEN-LAST:event_jFormattedTextField10KeyReleased
     private void clearProductFields() {
         jTextField2.setText("");
         jFormattedTextField8.setValue(0.0);
@@ -781,6 +881,7 @@ public class BillDashboard extends javax.swing.JPanel {
                 System.err.println("Database connection is null");
                 return;
             }
+
             String query = "SELECT c.name FROM creditors c WHERE c.name IS NOT NULL AND TRIM(c.name) != '' ORDER BY c.name ASC";
             try (PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -825,31 +926,43 @@ public class BillDashboard extends javax.swing.JPanel {
         jComboBox2.addActionListener(e -> {
             if (!isUpdating && jComboBox2.getSelectedItem() != null) {
                 String selected = jComboBox2.getSelectedItem().toString();
-                isUpdating = true;
-                editor.setText(selected);
-                editor.setCaretPosition(selected.length());
-                isUpdating = false;
-                jComboBox2.hidePopup();
+                if (!selected.equals("Select customer") && !selected.equals("No matches found")) {
+                    isUpdating = true;
+                    editor.setText(selected);
+                    editor.setCaretPosition(selected.length());
+                    isUpdating = false;
+                    jComboBox2.hidePopup();
+
+                    // Show credit info after selection
+                    showSelectedCustomerCredit();
+                }
             }
         });
     }
 
     private void filterComboBox() {
         JTextComponent editor = (JTextComponent) jComboBox2.getEditor().getEditorComponent();
-        String text = editor.getText().toLowerCase();
+        String text = editor.getText();
+
+        if (text == null) {
+            text = "";
+        }
+
+        String searchText = text.toLowerCase().trim();
 
         isUpdating = true;
 
         jComboBox2.removeAllItems();
 
-        if (text.isEmpty()) {
+        if (searchText.isEmpty()) {
+            jComboBox2.addItem("Select customer");
             for (String customer : allCustomers) {
                 jComboBox2.addItem(customer);
             }
         } else {
             boolean hasMatches = false;
             for (String customer : allCustomers) {
-                if (customer.toLowerCase().contains(text)) {
+                if (customer.toLowerCase().contains(searchText)) {
                     jComboBox2.addItem(customer);
                     hasMatches = true;
                 }
@@ -867,6 +980,24 @@ public class BillDashboard extends javax.swing.JPanel {
         if (jComboBox2.getItemCount() > 0) {
             jComboBox2.showPopup();
         }
+    }
+
+    public void clearSelection() {
+        isUpdating = true;
+        jComboBox2.setSelectedItem("Select customer");
+        JTextComponent editor = (JTextComponent) jComboBox2.getEditor().getEditorComponent();
+        editor.setText("");
+
+        // Clear credit display when selection is cleared
+        selectedCustomerId = -1;
+        creditBalanceLabel.setText("0.00");
+        creditBalanceTextField.setEditable(false);
+
+        isUpdating = false;
+    }
+
+    public void refreshCreditDisplay() {
+        showSelectedCustomerCredit();
     }
 
     private void updateComboBoxModel(String filter) {
@@ -892,22 +1023,58 @@ public class BillDashboard extends javax.swing.JPanel {
 
     public String getSelectedCustomer() {
         if (jComboBox2.getSelectedItem() != null) {
-            String selected = jComboBox2.getSelectedItem().toString();
-            return selected.equals("No matches found") ? "" : selected;
+            String selected = jComboBox2.getSelectedItem().toString().trim();
+            if (selected.equals("Select customer")
+                    || selected.equals("No matches found")
+                    || selected.isEmpty()) {
+                return "";
+            }
+            return selected;
         }
         return "";
     }
 
-    public void clearSelection() {
-        isUpdating = true;
-        jComboBox2.setSelectedIndex(-1);
-        JTextComponent editor = (JTextComponent) jComboBox2.getEditor().getEditorComponent();
-        editor.setText("");
-        isUpdating = false;
-    }
-
     public void refreshCustomerList() {
         loadAllCustomers();
+    }
+
+    private void showSelectedCustomerCredit() {
+        String selectedCustomer = getSelectedCustomer();
+
+        // Reset values first
+        selectedCustomerId = -1;
+        creditBalanceLabel.setText("0.00");
+        creditBalanceTextField.setEditable(false);
+
+        if (selectedCustomer == null || selectedCustomer.trim().isEmpty()
+                || selectedCustomer.equals("Select customer") || selectedCustomer.equals("No matches found")) {
+            return;
+        }
+
+        try (Connection conn = Database.getInstace().getConnection()) {
+            String sql = "SELECT id, total_debt FROM creditors WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, selectedCustomer.trim());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        selectedCustomerId = rs.getInt("id");
+                        double debt = rs.getDouble("total_debt");
+                        creditBalance = debt;
+                        creditBalanceLabel.setText(String.format("%.2f", debt));
+                        creditBalanceTextField.setEditable(true);
+                        System.out.println("Found customer: " + selectedCustomer + " with debt: " + debt); // Debug
+                    } else {
+                        System.out.println("No customer found for: '" + selectedCustomer + "'"); // Debug
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error loading customer credit: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void setupTableAppearance(JTable table) {
@@ -949,6 +1116,12 @@ public class BillDashboard extends javax.swing.JPanel {
             }
             // Recalculate totals after checkbox change
             recalculateAllTotals(model);
+            double total = Double.parseDouble(jLabel20.getText());
+            if (!jFormattedTextField10.getText().trim().isEmpty()) {
+
+                double payment = Double.parseDouble(jFormattedTextField10.getText());
+                jLabel39.setText(String.format("%.2f", (payment - total)));
+            }
         });
 
         model.addTableModelListener(e -> {
@@ -1004,11 +1177,14 @@ public class BillDashboard extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField barcodeInput;
+    private javax.swing.JLabel creditBalanceLabel;
+    private javax.swing.JTextField creditBalanceTextField;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JFormattedTextField jFormattedTextField10;
     private javax.swing.JFormattedTextField jFormattedTextField7;
     private javax.swing.JFormattedTextField jFormattedTextField8;
     private javax.swing.JFormattedTextField jFormattedTextField9;
@@ -1028,6 +1204,7 @@ public class BillDashboard extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1049,7 +1226,6 @@ public class BillDashboard extends javax.swing.JPanel {
     private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 
     private void clearInputFields() {
@@ -1252,7 +1428,7 @@ public class BillDashboard extends javax.swing.JPanel {
         try {
             double total = Double.parseDouble(jLabel20.getText());
 
-            String input = jTextField3.getText().trim();
+            String input = jFormattedTextField10.getText().trim();
             if (!input.isEmpty()) {
                 double given = Double.parseDouble(input);
 
@@ -1270,6 +1446,9 @@ public class BillDashboard extends javax.swing.JPanel {
     private void printBill() {
         System.out.println("Print bill");
 
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
+        barcodeRowMap.clear();
         resetForm();
     }
 
@@ -1355,17 +1534,49 @@ public class BillDashboard extends javax.swing.JPanel {
         jLabel19.setText("0.00");
         jLabel20.setText("0.00");
         jLabel39.setText("0.00");
+        jComboBox2.setSelectedIndex(0);
+        creditBalanceLabel.setText("0.00");
 
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
 
         jTextField1.setText("");
-        jTextField3.setText("");
+        jFormattedTextField10.setText("");
         jTextField1.setEnabled(false);
 
         jCheckBox1.setSelected(false);
 
         originalPrices.clear();
 
+    }
+
+    private void updateCredit() {
+        if (selectedCustomerId <= 0) {
+            JOptionPane.showMessageDialog(this, "Please select a customer first.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            double paybleDebt = Double.parseDouble(creditBalanceTextField.getText());
+            double newDebt = creditBalance - paybleDebt;
+            try (Connection conn = Database.getInstace().getConnection()) {
+                String updateSql = "UPDATE creditors SET total_debt = ? WHERE id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+                    System.out.println(selectedCustomerId);
+                    pstmt.setDouble(1, newDebt);
+                    pstmt.setInt(2, selectedCustomerId);
+                    pstmt.executeUpdate();
+
+                    creditBalanceLabel.setText(String.format("%.2f", newDebt));
+                    JOptionPane.showMessageDialog(this, "Credit balance updated successfully ✅");
+                    creditBalanceTextField.setText("");
+                }
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid number format.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error occurred.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
