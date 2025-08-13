@@ -1,22 +1,37 @@
 package GUI;
 
-import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class POSApplication extends javax.swing.JFrame {
 
+    private BillDashboard billDashboard;
+    private CreditedCustomer creditedCustomer;
+    private ProductManagemnt productManagement;
+    private BillHistory billHistory;
+    private ReportPage reportPage;
+    private JPanel currentPanel;
+
     public POSApplication() {
         initComponents();
         LiveClock();
+        initializePanels();
+
         loadDashboard();
+    }
+
+    private void initializePanels() {
+        billDashboard = new BillDashboard();
+        creditedCustomer = new CreditedCustomer();
+        productManagement = new ProductManagemnt();
+        billHistory = new BillHistory();
+        reportPage = new ReportPage();
     }
 
     @SuppressWarnings("unchecked")
@@ -201,64 +216,46 @@ public class POSApplication extends javax.swing.JFrame {
 
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
         if (evt.getClickCount() == 1) {
-            mainJPanel.removeAll();
-            BillDashboard bd = new BillDashboard();
-            mainJPanel.setLayout(new BorderLayout());
-            mainJPanel.add(bd, BorderLayout.CENTER);
-            mainJPanel.revalidate();
-            mainJPanel.repaint();
-
+            showPanel(billDashboard);
         }
     }//GEN-LAST:event_jLabel8MouseClicked
 
     private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
         if (evt.getClickCount() == 1) {
-            mainJPanel.removeAll();
-            CreditedCustomer cc = new CreditedCustomer();
-            mainJPanel.setLayout(new BorderLayout());
-            mainJPanel.add(cc, BorderLayout.CENTER);
-            mainJPanel.revalidate();
-            mainJPanel.repaint();
-
+            showPanel(creditedCustomer);
         }
     }//GEN-LAST:event_jLabel12MouseClicked
 
     private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
         if (evt.getClickCount() == 1) {
-            mainJPanel.removeAll();
-            ProductManagemnt pm = new ProductManagemnt();
-            mainJPanel.setLayout(new BorderLayout());
-            mainJPanel.add(pm, BorderLayout.CENTER);
-            mainJPanel.revalidate();
-            mainJPanel.repaint();
-
+            showPanel(productManagement);
         }
     }//GEN-LAST:event_jLabel11MouseClicked
 
     private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
         if (evt.getClickCount() == 1) {
-            mainJPanel.removeAll();
-            BillHistory bh = new BillHistory();
-            mainJPanel.setLayout(new BorderLayout());
-            mainJPanel.add(bh, BorderLayout.CENTER);
-            mainJPanel.revalidate();
-            mainJPanel.repaint();
-
+            showPanel(billHistory);
         }
-
     }//GEN-LAST:event_jLabel10MouseClicked
 
     private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
         if (evt.getClickCount() == 1) {
-            mainJPanel.removeAll();
-            ReportPage rp = new ReportPage();
-            mainJPanel.setLayout(new BorderLayout());
-            mainJPanel.add(rp, BorderLayout.CENTER);
-            mainJPanel.revalidate();
-            mainJPanel.repaint();
-
+            showPanel(reportPage);
         }
     }//GEN-LAST:event_jLabel9MouseClicked
+
+    private void showPanel(JPanel panel) {
+        if (currentPanel == panel) {
+            return; // Already showing this panel
+        }
+
+        currentPanel = panel;
+        mainJPanel.removeAll();
+        mainJPanel.setLayout(new BorderLayout());
+        mainJPanel.add(panel, BorderLayout.CENTER);
+        mainJPanel.revalidate();
+        mainJPanel.repaint();
+    }
 
     private void loadDashboard() {
         mainJPanel.removeAll();

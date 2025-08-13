@@ -214,7 +214,7 @@ public class AddProduct extends javax.swing.JFrame {
             jTextField2.setText("");
             jTextField5.setText("");
             jFormattedTextField1.setText("");
-            jFormattedTextField2.setText("");
+            jFormattedTextField2.setText(" ");
             jTextField6.setText("");
             jTextField2.requestFocus();
         });
@@ -288,7 +288,6 @@ public class AddProduct extends javax.swing.JFrame {
         jFormattedTextField1.setFormatterFactory(new DefaultFormatterFactory(formatter));
         jFormattedTextField2.setFormatterFactory(new DefaultFormatterFactory(formatter));
     }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;
