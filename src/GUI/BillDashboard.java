@@ -790,12 +790,10 @@ public class BillDashboard extends javax.swing.JPanel {
 
                 if (rowsAffected > 0) {
                     conn.commit();
-                    System.out.println("Customer deleted from creditors - debt fully settled");
 
-                    // Reset UI
                     selectedCustomerId = -1;
                     creditBalanceLabel.setText("0.00");
-                    clearSelection(); // This will refresh the customer list
+                    clearSelection();
                 } else {
                     conn.rollback();
                     throw new SQLException("Failed to delete customer");
@@ -861,11 +859,9 @@ public class BillDashboard extends javax.swing.JPanel {
 
                 conn.commit(); // Commit transaction
 
-                // CHANGED: Update UI immediately after successful database update
                 creditBalance = newCreditAmount;
                 creditBalanceLabel.setText(String.format("%.2f", newCreditAmount));
 
-                System.out.println("Credit updated successfully: " + reason + " | New balance: " + newCreditAmount);
             }
 
         } catch (SQLException e) {
@@ -891,8 +887,7 @@ public class BillDashboard extends javax.swing.JPanel {
 
     private void printBillWithTransaction() {
         try {
-            // CHANGED: All database operations are now completed before printing
-            System.out.println("Printing bill - all database operations completed");
+
             printBill();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
@@ -929,7 +924,6 @@ public class BillDashboard extends javax.swing.JPanel {
         }
 
         String barcode = barcodeInput.getText().trim();
-        System.out.println("Searching for barcode: " + barcode);
 
         ProductDAO productDAO = new ProductDAO();
         try {
@@ -940,7 +934,6 @@ public class BillDashboard extends javax.swing.JPanel {
                 jFormattedTextField8.setValue(product.getWeladapalaMila());
                 jFormattedTextField9.setValue(product.getApeMila());
                 jFormattedTextField7.requestFocus();
-                System.out.println("Product found: " + product.getEnName());
             } else {
                 clearProductFields();
                 barcodeInput.selectAll();
@@ -1052,7 +1045,6 @@ public class BillDashboard extends javax.swing.JPanel {
         allCustomers = new ArrayList<>();
         try (Connection conn = Database.getInstace().getConnection()) {
             if (conn == null) {
-                System.err.println("Database connection is null");
                 return;
             }
 
@@ -1267,7 +1259,6 @@ public class BillDashboard extends javax.swing.JPanel {
                         double totalAmountDue = currentBill + debt;
                         jLabel40.setText(String.format("%.2f", totalAmountDue));
 
-                        System.out.println("Found customer: " + selectedCustomer + " with debt: " + debt + ", Total due: " + totalAmountDue);
                     } else {
                         // NEW: If customer not found in creditors table, just show current bill
                         double currentBill = Double.parseDouble(jLabel20.getText());
@@ -1389,12 +1380,9 @@ public class BillDashboard extends javax.swing.JPanel {
             double qtyOfRow = Double.parseDouble(model.getValueAt(i, 2).toString());
 
             double totalPrice = weladapalaMilaOfRow * qtyOfRow;
-            System.out.println("total price " + totalPrice);
 
             double apeMilaOfRow = Double.parseDouble(model.getValueAt(i, 5).toString());
-            System.out.println("ape mila row " + apeMilaOfRow);
             saving += totalPrice - apeMilaOfRow;
-            System.out.println("Saving " + saving);
         }
         jLabel19.setText(String.format("%.2f", saving));
         double subTotal = Double.parseDouble(jLabel18.getText());
@@ -1593,9 +1581,7 @@ public class BillDashboard extends javax.swing.JPanel {
 
         for (int i = 0; i < model.getRowCount(); i++) {
             Object qtyObj = model.getValueAt(i, 2);
-            System.out.println("qty " + qtyObj);
             Object priceObj = model.getValueAt(i, 3);
-            System.out.println("price " + priceObj);
 
             if (qtyObj != null && priceObj != null) {
                 try {
@@ -1698,7 +1684,6 @@ public class BillDashboard extends javax.swing.JPanel {
     }
 
     private void printBill() {
-        System.out.println("Print bill");
 
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
