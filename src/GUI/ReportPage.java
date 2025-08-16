@@ -59,6 +59,11 @@ public class ReportPage extends javax.swing.JPanel {
         try {
             conn = Database.getInstace().getConnection();
 
+            // Debug: Print the today variable to see its format
+            System.out.println("Today value: " + today);
+            String likeDate = today + "%";
+            System.out.println("Like date pattern: " + likeDate);
+
             String totalSalesQuery = "SELECT IFNULL(SUM(total_amount), 0) FROM bills WHERE datetime LIKE ?";
             String billCountQuery = "SELECT COUNT(*) FROM bills WHERE datetime LIKE ?";
             String productsSoldQuery
@@ -70,35 +75,47 @@ public class ReportPage extends javax.swing.JPanel {
 
             try (
                     PreparedStatement totalSalesStmt = conn.prepareStatement(totalSalesQuery); PreparedStatement billCountStmt = conn.prepareStatement(billCountQuery); PreparedStatement productsSoldStmt = conn.prepareStatement(productsSoldQuery); PreparedStatement averageSalesStmt = conn.prepareStatement(averageSalesQuery)) {
-                String likeDate = today + "%";
 
                 totalSalesStmt.setString(1, likeDate);
                 billCountStmt.setString(1, likeDate);
                 productsSoldStmt.setString(1, likeDate);
                 averageSalesStmt.setString(1, likeDate);
 
+                // Total Sales
                 ResultSet rs1 = totalSalesStmt.executeQuery();
                 if (rs1.next()) {
-                    jLabel30.setText(String.valueOf(rs1.getDouble(1)));
+                    double totalSales = rs1.getDouble(1);
+                    System.out.println("Total Sales: " + totalSales); // Debug
+                    jLabel30.setText(String.format("%.2f", totalSales)); // Format to 2 decimal places
                 }
 
+                // Bill Count
                 ResultSet rs2 = billCountStmt.executeQuery();
                 if (rs2.next()) {
-                    jLabel34.setText(String.valueOf(rs2.getInt(1)));
+                    int billCount = rs2.getInt(1);
+                    System.out.println("Bill Count: " + billCount); // Debug
+                    jLabel34.setText(String.valueOf(billCount));
                 }
 
+                // Products Sold
                 ResultSet rs3 = productsSoldStmt.executeQuery();
                 if (rs3.next()) {
-                    jLabel31.setText(String.valueOf(rs3.getInt(1)));
+                    int productsSold = rs3.getInt(1);
+                    System.out.println("Products Sold: " + productsSold); // Debug
+                    jLabel31.setText(String.valueOf(productsSold));
                 }
 
+                // Average Sales
                 ResultSet rs4 = averageSalesStmt.executeQuery();
                 if (rs4.next()) {
-                    jLabel26.setText(String.valueOf(rs4.getDouble(1)));
+                    double avgSales = rs4.getDouble(1);
+                    System.out.println("Average Sales: " + avgSales); // Debug
+                    jLabel26.setText(String.format("%.2f", avgSales)); // Format to 2 decimal places
                 }
             }
 
         } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage()); // Better error logging
             e.printStackTrace();
         } finally {
             try {
@@ -108,6 +125,27 @@ public class ReportPage extends javax.swing.JPanel {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+
+// Additional debugging - Test if there's any data in bills table
+        try (Connection testConn = Database.getInstace().getConnection()) {
+            String testQuery = "SELECT COUNT(*) FROM bills";
+            PreparedStatement testStmt = testConn.prepareStatement(testQuery);
+            ResultSet testRs = testStmt.executeQuery();
+            if (testRs.next()) {
+                System.out.println("Total bills in database: " + testRs.getInt(1));
+            }
+
+            // Check datetime format in database
+            String formatQuery = "SELECT datetime FROM bills LIMIT 5";
+            PreparedStatement formatStmt = testConn.prepareStatement(formatQuery);
+            ResultSet formatRs = formatStmt.executeQuery();
+            System.out.println("Sample datetime formats in database:");
+            while (formatRs.next()) {
+                System.out.println("- " + formatRs.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
