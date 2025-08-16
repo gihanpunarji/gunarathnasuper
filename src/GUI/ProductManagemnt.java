@@ -29,7 +29,6 @@ public class ProductManagemnt extends javax.swing.JPanel {
     public ProductManagemnt() {
         initComponents();
         loadProductsTable(jTable1, null);
-        jLabel2.setText(String.valueOf(jTable1.getRowCount()));
     }
 
     @SuppressWarnings("unchecked")
@@ -312,6 +311,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
                     }
                 }
             }
+            jLabel2.setText(String.valueOf(jTable1.getRowCount()));
 
             TableColumnModel columnModel = table.getColumnModel();
             if (columnModel.getColumnCount() > 0) {
@@ -357,7 +357,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
                     } catch (Exception ex2) {
                         ex2.printStackTrace();
                         JOptionPane.showMessageDialog(table, "❌ Error: " + ex2.getMessage());
-                        loadProductsTable(table, null);
+                        loadProductsTable(table, null);                       
                     }
                 }
             });
@@ -424,6 +424,7 @@ public class ProductManagemnt extends javax.swing.JPanel {
                                 JOptionPane.showMessageDialog(table, "✅ Product deleted successfully!");
                                 // Refresh the table
                                 loadProductsTable(table, null);
+                                jLabel2.setText(String.valueOf(jTable1.getRowCount()));
                             } else {
                                 JOptionPane.showMessageDialog(table, "❌ Failed to delete product from database!");
                             }
