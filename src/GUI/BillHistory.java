@@ -1,16 +1,24 @@
 package GUI;
 
 import database.Database;
+import java.awt.Frame;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 public class BillHistory extends javax.swing.JPanel {
@@ -24,6 +32,22 @@ public class BillHistory extends javax.swing.JPanel {
         jComboBox1.addItem("මෙමස");
         loadBillData();
 
+        jTable1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) { // Double-click detected
+                    int selectedRow = jTable1.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Get the bill ID from the selected row (assuming it's in column 0)
+                        int billId = Integer.parseInt(jTable1.getValueAt(selectedRow, 0).toString());
+
+                        // Call method to show bill items popup
+                        showBillItemsPopup(billId);
+                    }
+                }
+            }
+        });
+
     }
 
     private void loadBillStats() {
@@ -34,8 +58,7 @@ public class BillHistory extends javax.swing.JPanel {
                 return;
             }
 
-            String sql = "SELECT "
-                    + "COUNT(*) AS total_bills, "
+            String sql = "SELECT COUNT(*) AS total_bills,"
                     + "COALESCE(SUM(CASE WHEN paid_amount = total_amount THEN total_amount ELSE 0 END), 0) AS cash_sales, "
                     + "COALESCE(SUM(CASE WHEN paid_amount < total_amount THEN total_amount ELSE 0 END), 0) AS credit_sales, "
                     + "COALESCE(SUM(total_amount), 0) AS total_income "
@@ -76,15 +99,28 @@ public class BillHistory extends javax.swing.JPanel {
             List<Object> params = new ArrayList<>();
 
             if (!searchText.isEmpty()) {
-                sql.append("AND (CAST(bills.id AS TEXT) LIKE ? OR creditors.name LIKE ?) ");
-                params.add("%" + searchText + "%");
-                params.add("%" + searchText + "%");
+                sql.append("AND (CAST(bills.id AS TEXT) = ? OR creditors.id = ?) ");
+                params.add(searchText);
+                params.add(searchText);
             }
 
             if (fromDate != null && toDate != null) {
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
                 sql.append("AND DATE(bills.datetime) BETWEEN ? AND ? ");
-                params.add(new java.sql.Date(fromDate.getTime()));
-                params.add(new java.sql.Date(toDate.getTime()));
+                params.add(sdf.format(fromDate));
+                params.add(sdf.format(toDate));
+
+                System.out.println(sdf.format(fromDate));
+                System.out.println(sdf.format(toDate));
+
+            } else if (fromDate != null && toDate == null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                sql.append("AND DATE(bills.datetime) = ? ");
+                params.add(sdf.format(fromDate));
+
             } else if (fromDate == null && toDate != null) {
                 JOptionPane.showMessageDialog(null, "Please select 'From' date.");
                 return;
@@ -142,6 +178,52 @@ public class BillHistory extends javax.swing.JPanel {
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error loading bills: " + ex.getMessage());
+        }
+    }
+
+    private void showBillItemsPopup(int billId) {
+        try (Connection con = Database.getInstace().getConnection()) {
+            String sql = "SELECT id, product_name, marked_price, sold_price, quantity FROM bill_items WHERE bill_id = ?";
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, billId);
+                ResultSet rs = ps.executeQuery();
+
+                // Create a simple dialog to display bill items
+                JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Bill Items - බිල් අන්කය: " + billId, true);
+                dialog.setSize(500, 300);
+                dialog.setLocationRelativeTo(this);
+
+                // Create table model for bill items
+                DefaultTableModel itemModel = new DefaultTableModel();
+                itemModel.addColumn("අයිතම අන්ක​ය");
+                itemModel.addColumn("අයිතම නම");
+                itemModel.addColumn("වෙළඳ්පළ මිල");
+                itemModel.addColumn("අපේ මිල");
+                itemModel.addColumn("පප්‍රමාණය");
+
+                // Populate the model with bill items data
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getInt("id"),
+                        rs.getString("product_name"),
+                        String.format("%.2f", rs.getDouble("marked_price")),
+                        String.format("%.2f", rs.getDouble("sold_price")),
+                        rs.getInt("quantity")
+                    };
+                    itemModel.addRow(row);
+                }
+
+                // Create table and add to dialog
+                JTable itemTable = new JTable(itemModel);
+                JScrollPane scrollPane = new JScrollPane(itemTable);
+                dialog.add(scrollPane);
+
+                dialog.setVisible(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error loading bill items: " + ex.getMessage());
         }
     }
 
@@ -570,7 +652,7 @@ public class BillHistory extends javax.swing.JPanel {
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
@@ -585,16 +667,27 @@ public class BillHistory extends javax.swing.JPanel {
 
             },
             new String [] {
-                "බිල්පත් අංකය", "භාණ්ඩය ප්‍රමාණය", "දිනය", "මුදල් / ණය"
+                "බිල්පත් අංකය", "දිනය", "පාරිබෝගික​යා", "සම්පූර්ණ මි​ල", "ණය"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable1.setShowGrid(true);
         jTable1.setSurrendersFocusOnKeystroke(true);
         jScrollPane1.setViewportView(jTable1);
         if (jTable1.getColumnModel().getColumnCount() > 0) {
             jTable1.getColumnModel().getColumn(0).setResizable(false);
             jTable1.getColumnModel().getColumn(1).setResizable(false);
+            jTable1.getColumnModel().getColumn(2).setResizable(false);
+            jTable1.getColumnModel().getColumn(3).setResizable(false);
             jTable1.getColumnModel().getColumn(3).setPreferredWidth(15);
+            jTable1.getColumnModel().getColumn(4).setResizable(false);
         }
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
