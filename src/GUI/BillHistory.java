@@ -27,6 +27,7 @@ public class BillHistory extends javax.swing.JPanel {
     }
 
     private void loadBillStats() {
+        System.out.println("hi");
         try (Connection conn = Database.getInstace().getConnection()) {
             if (conn == null) {
                 System.err.println("Database connection is null");
@@ -42,10 +43,10 @@ public class BillHistory extends javax.swing.JPanel {
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    jLabel31.setText(String.valueOf(rs.getInt("total_bills")));      // total bills
-                    jLabel32.setText(String.format("%.2f", rs.getDouble("cash_sales")));    // cash sales
-                    jLabel26.setText(String.format("%.2f", rs.getDouble("credit_sales")));  // credit sales
-                    jLabel30.setText(String.format("%.2f", rs.getDouble("total_income")));  // total income
+                    jLabel31.setText(String.valueOf(rs.getInt("total_bills")));
+                    jLabel32.setText(String.format("%.2f", rs.getDouble("cash_sales")));
+                    jLabel26.setText(String.format("%.2f", rs.getDouble("credit_sales")));
+                    jLabel30.setText(String.format("%.2f", rs.getDouble("total_income")));
                 }
             }
         } catch (SQLException ex) {
@@ -74,14 +75,12 @@ public class BillHistory extends javax.swing.JPanel {
 
             List<Object> params = new ArrayList<>();
 
-            // Search filter
             if (!searchText.isEmpty()) {
                 sql.append("AND (CAST(bills.id AS TEXT) LIKE ? OR creditors.name LIKE ?) ");
                 params.add("%" + searchText + "%");
                 params.add("%" + searchText + "%");
             }
 
-            // Date range filter (only if both selected)
             if (fromDate != null && toDate != null) {
                 sql.append("AND DATE(bills.datetime) BETWEEN ? AND ? ");
                 params.add(new java.sql.Date(fromDate.getTime()));
@@ -94,14 +93,13 @@ public class BillHistory extends javax.swing.JPanel {
             // Filter by combo box option, **only if not 'සියළුම' (All)**
             if (!filterOption.equals("සියළුම")) {
                 switch (filterOption) {
-                    case "අද දින": // Today
+                    case "අද දින":
                         sql.append("AND DATE(bills.datetime) = DATE('now', 'localtime') ");
                         break;
-                    case "මෙම සතිය තුළ": // This Week
-                        // SQLite: starting from last Sunday, last 7 days
+                    case "මෙම සතිය තුළ":
                         sql.append("AND bills.datetime >= datetime('now', 'start of day', 'weekday 0', '-7 days') ");
                         break;
-                    case "මෙමස": // This Month
+                    case "මෙමස":
                         sql.append("AND strftime('%Y-%m', bills.datetime) = strftime('%Y-%m', 'now') ");
                         break;
                 }
